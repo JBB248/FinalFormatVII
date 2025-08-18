@@ -1,0 +1,87 @@
+{
+		"search.exclude": {
+				"export/**/*.*": true
+		},
+
+		"[haxe]": {
+				// Keep source files formatted
+				"editor.formatOnSave": false,
+				"editor.formatOnPaste": false,
+				"editor.codeActionsOnSave": {
+						"source.organizeImports": "never"
+				},
+				"editor.defaultFormatter": "nadako.vshaxe",
+				"editor.tabSize": 4
+		},
+
+		"[json]": {
+            // Keep data files formatted
+            "editor.formatOnSave": true,
+            "editor.formatOnPaste": true,
+            "editor.defaultFormatter": "esbenp.prettier-vscode",
+            "editor.tabSize": 2
+		},
+
+		// XML formatting style configuration
+		"xml.format.enabled": true,
+		"xml.format.legacy": false,
+		"xml.format.emptyElements": "collapse",
+		"xml.preferences.quoteStyle": "double",
+		"xml.format.enforceQuoteStyle": "preferred",
+		"xml.format.preserveAttributeLineBreaks": false,
+		"xml.format.preservedNewlines": 0,
+		"xml.format.splitAttributes": "preserve",
+		"xml.format.joinCDATALines": true,
+		"xml.format.preserveEmptyContent": false,
+		"xml.format.joinCommentLines": false,
+		"xml.format.joinContentLines": false,
+		"xml.format.spaceBeforeEmptyCloseTag": true,
+		"xml.format.xsiSchemaLocationSplit": "onPair",
+		"xml.format.splitAttributesIndentSize": 2,
+		"xml.format.closingBracketNewLine": false,
+		"xml.format.preserveSpace": [
+			"xsl:text",
+			"xsl:comment",
+			"xsl:processing-instruction",
+			"literallayout",
+			"programlisting",
+			"screen",
+			"synopsis",
+			"pre",
+			"xd:pre"
+		],
+		"xml.format.maxLineWidth": 0,
+		"xml.format.grammarAwareFormatting": true,
+
+		// Keep all files consistent
+		"files.insertFinalNewline": true,
+		"files.trimFinalNewlines": false,
+		"files.trimTrailingWhitespace": true,
+		// Automatically enforce Linux style line endings.
+		"files.eol": "\n",
+
+		// Automatically detect indentation.
+		"editor.detectIndentation": false,
+		"editor.insertSpaces": true,
+		"editor.tabSize": 4,
+
+		"haxe.displayPort": "auto",
+		"haxe.enableCompilationServer": false,
+		"haxe.enableServerView": true,
+		"haxe.displayServer": {
+			"arguments": ["-v"]
+		},
+
+		"lime.targetConfigurations": [
+			{
+				"label": "Windows / Debug",
+				"target": "windows",
+				"args": ["-debug", ""]
+			},
+            {
+				"label": "Hashlink / Debug",
+				"target": "hl",
+				"args": ["-debug", ""]
+			}
+		]
+}

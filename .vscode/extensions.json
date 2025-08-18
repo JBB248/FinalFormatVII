@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "esbenp.prettier-vscode",
+        "haxefoundation.haxe-hl",
+        "nadako.vshaxe",
+        "openfl.lime-vscode-extension",
+        "redhat.vscode-xml",
+        "vshaxe.hxcpp-debugger"
+    ]
+}

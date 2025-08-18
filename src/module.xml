@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module id="talistwins">
+    <resources>
+        <resource path="/burst/ui/_module/styles" prefix="burst/styles"/>
+    </resources>
+
+    <components>
+        <component package="debug.sprite.components"/>
+    </components>
+
+    <themes>
+        <dark-compact parent="dark">
+            <!-- Normal -->
+            <var name="normal-background-color-start" value="#0D1012"/>
+            <var name="normal-background-color-end" value="#05070A"/>
+            <var name="normal-border-color" value="#454C56"/>
+            <var name="normal-border-radius" value="0px" />
+
+            <!-- Disabled -->
+            <var name="disabled-background-color-start" value="#141619"/>
+            <var name="disabled-background-color-end" value="#141619"/>
+
+            <!-- Selection -->
+            <var name="selection-background-color" value="#1E8BF0"/>
+
+            <!-- Accent -->
+            <var name="accent-color" value="#1E8BF0"/>
+
+            <!-- Misc -->
+            <var name="default-background-color" value="#05070A"/>
+            <var name="secondary-background-color" value="#05070A"/>
+            <var name="tertiary-background-color" value="#05070A"/>
+            <var name="solid-background-color" value="#05070A"/>
+            <var name="solid-background-color-down" value="#141619"/>
+
+            <style resource="burst/styles/containers.css"/>
+            <style resource="burst/styles/menus.css"/>
+            <style resource="burst/styles/tabs.css"/>
+        </dark-compact>
+    </themes>
+</module>

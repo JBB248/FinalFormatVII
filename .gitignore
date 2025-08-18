@@ -1,0 +1,5 @@
+# Hashlink debugger excess
+dump/*
+
+# export files
+export/*

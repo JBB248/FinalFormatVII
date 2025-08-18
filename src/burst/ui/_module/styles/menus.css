@@ -1,0 +1,8 @@
+.menubar {
+    padding: 2px;
+    horizontal-spacing: 0px;
+}
+
+.menubar > .button {
+    padding: 4px 6px;
+}

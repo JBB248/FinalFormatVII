@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Macro",
+            "type": "haxe-eval",
+            "request": "launch"
+        },
+        {
+            "name": "Build and Debug Current Target",
+            "type": "lime",
+            "request": "launch",
+        }
+    ]
+}
