@@ -1,15 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vbox width="100%" height="100%" style="spacing: 0px;">
-    <vbox id="top-box" width="100%" height="30%" style="background-color: $default-background-color; background-opacity: 0.92; padding: 5px;">
-        <button id="load-button" text="Select Cover Art"/>
-        <hbox>
-            <label text="Page Output Size:"/>
-            <dropdown>
-                <data>
-                    <item text="A4"/>
-                    <item text="B4"/>
-                </data>
-            </dropdown>
+    <vbox id="top-box" width="100%" height="30%" style="background-color: $default-background-color; background-opacity: 0.92;">
+        <hbox width="100%" height="100%" style="horizontal-spacing: 0px;">
+            <vbox width="25%" height="100%" style="border-right: 2px solid $normal-border-color; padding: 5px;">
+                <section-header text="Input"/>
+                <label id="dpi-label" text="DPI input: N/A"/>
+                <label id="image-real-size" text="Image dimensions: N/A"/>
+                <button id="load-button" text="Select Cover Art"/>
+            </vbox>
+            <vbox width="25%" height="100%" style="border-right: 2px solid $normal-border-color; padding: 5px;">
+                <section-header text="Output:"/>
+                <hbox>
+                    <label width= "90px" text="Page Output Size:"/>
+                    <dropdown width="50px">
+                        <data>
+                            <item text="A4"/>
+                            <item text="B4"/>
+                        </data>
+                    </dropdown>
+                </hbox>
+                <hbox>
+                    <label width="90px" text="Output type:"/>
+                    <dropdown width="50px">
+                        <data>
+                            <item text="PS3"/>
+                            <item text="Wii"/>
+                        </data>
+                    </dropdown>
+                </hbox>
+            </vbox>
+            <vbox width="50%" height="100%" style="background-color: $default-background-color; padding: 5px;">
+                <section-header text="Log:"/>
+                <text-field id="userLog" width="100%" height="100%"/>
+            </vbox>
         </hbox>
     </vbox>
 </vbox>
