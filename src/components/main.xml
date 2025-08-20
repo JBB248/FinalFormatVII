@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vbox width="100%" height="100%" style="spacing: 0px;">
+    <vbox id="top-box" width="100%" height="30%" style="background-color: $default-background-color; background-opacity: 0.92; padding: 5px;">
+        <button id="load-button" text="Select Cover Art"/>
+        <hbox>
+            <label text="Page Output Size:"/>
+            <dropdown>
+                <data>
+                    <item text="A4"/>
+                    <item text="B4"/>
+                </data>
+            </dropdown>
+        </hbox>
+    </vbox>
+</vbox>

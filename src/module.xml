@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<module id="talistwins">
+<module id="final-format-vii">
     <resources>
         <resource path="/burst/ui/_module/styles" prefix="burst/styles"/>
     </resources>
 
     <components>
-        <component package="debug.sprite.components"/>
+        <component package="components"/>
     </components>
 
     <themes>
