@@ -3,6 +3,9 @@
     <vbox id="top-box" width="100%" height="30%" style="background-color: $default-background-color; background-opacity: 0.92; padding: 5px;">
         <button id="load-button" text="Select Cover Art"/>
         <hbox>
+            <label id="dpi-label"/>
+        </hbox>
+        <hbox>
             <label text="Page Output Size:"/>
             <dropdown>
                 <data>

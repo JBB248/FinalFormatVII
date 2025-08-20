@@ -9,6 +9,8 @@ import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.containers.dialogs.Dialogs;
 import haxe.ui.containers.dialogs.OpenFileDialog;
 
+using StringTools;
+
 @:build(haxe.ui.ComponentBuilder.build("src/components/main.xml"))
 class PlayState extends haxe.ui.backend.flixel.UIState
 {
@@ -45,9 +47,17 @@ class PlayState extends haxe.ui.backend.flixel.UIState
     {
         if(event.button != DialogButton.OK) return;
 
-        coverSprite.loadGraphic(BitmapData.fromBytes(dialog.selectedFiles[0].bytes));
+        var bytes = dialog.selectedFiles[0].bytes;
+        var bitmap = BitmapData.fromBytes(bytes);
+        coverSprite.loadGraphic(bitmap);
         coverSprite.revive();
         centerCoverSprite();
+
+        var dpi = -1;
+        if(dialog.selectedFiles[0].fullPath.toLowerCase().endsWith(".png"))
+            dpi = DPIInterpreter.fromPNG(bytes);
+
+        dpiLabel.text = "DPI: " + dpi;
     }
 
     function centerCoverSprite():Void
@@ -55,11 +65,11 @@ class PlayState extends haxe.ui.backend.flixel.UIState
         coverSprite.setGraphicSize(0, (FlxG.height - topBox.height) * 0.9);
         coverSprite.updateHitbox();
         coverSprite.x = FlxG.width * 0.5 - coverSprite.width * 0.5;
-        coverSprite.y = topBox.height + (FlxG.height - topBox.height) * 0.5 - coverSprite.height * 0.5; 
+        coverSprite.y = topBox.height + (FlxG.height - topBox.height) * 0.5 - coverSprite.height * 0.5;
     }
 
     @:bind(loadButton, MouseEvent.CLICK)
-    function onLoadButtonPressed(_):Void 
+    function onLoadButtonPressed(_):Void
         dialog.show();
 
     override function destroy():Void
