@@ -19,7 +19,7 @@ class PlayState extends haxe.ui.backend.flixel.UIState
 	override public function create()
 	{
         coverSprite = new FlxSprite();
-        coverSprite.kill();
+        coverSprite.kill(); //why create something only to immeditely kill it-- this is the programming equivalant of an abortion
 
         add(new flixel.addons.display.FlxBackdrop(new DebugSquare(0, 0)));
         add(coverSprite);
@@ -55,11 +55,11 @@ class PlayState extends haxe.ui.backend.flixel.UIState
         coverSprite.setGraphicSize(0, (FlxG.height - topBox.height) * 0.9);
         coverSprite.updateHitbox();
         coverSprite.x = FlxG.width * 0.5 - coverSprite.width * 0.5;
-        coverSprite.y = topBox.height + (FlxG.height - topBox.height) * 0.5 - coverSprite.height * 0.5; 
+        coverSprite.y = topBox.height + (FlxG.height - topBox.height) * 0.5 - coverSprite.height * 0.5;
     }
 
     @:bind(loadButton, MouseEvent.CLICK)
-    function onLoadButtonPressed(_):Void 
+    function onLoadButtonPressed(_):Void
         dialog.show();
 
     override function destroy():Void
