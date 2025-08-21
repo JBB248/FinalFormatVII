@@ -1,4 +1,4 @@
-package;
+package components;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -14,7 +14,7 @@ import openfl.display.BitmapData;
 using StringTools;
 
 @:build(haxe.ui.ComponentBuilder.build("src/components/main.xml"))
-class PlayState extends UIState
+class MainState extends UIState
 {
     var dialog = new OpenFileDialog();
 
@@ -53,24 +53,13 @@ class PlayState extends UIState
         var bytes = dialog.selectedFiles[0].bytes;
         var path = dialog.selectedFiles[0].fullPath.toLowerCase();
         if(path.endsWith("png"))
-        {
             dpi = DPIInterpreter.fromPNG(bytes);
-        }
         else if(path.endsWith("gif"))
-        {
-            trace("gif file extension is not supported. Please convert the image into png, or jpg");
-            return;
-        }
+            return trace("gif file extension will not be supported. Please convert the image into png, or jpg");
         else if(path.endsWith("bmp"))
-        {
-            trace("bmp file extension is not supported. Please convert the image into png, or jpg");
-            return;
-        }
+            return trace("bmp file extension is not currently supported. Please convert the image into png, or jpg");
         else
-        {
-            trace("Invalid file submitted");
-            return;
-        }
+            return components.UserLog.addMessage("Invalid file submitted. Please submit a png or jpg file");
 
         dpiLabel.text = "DPI: " + dpi;
 
