@@ -1,40 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vbox width="100%" height="100%" style="background-color: $default-background-color; background-opacity: 0.92;">
-    <hbox width="100%" height="50%" style="horizontal-spacing: 0px;">
-        <vbox width="50%" height="100%" style="border-right: 2px solid $normal-border-color; padding: 5px;">
-            <section-header text="Input:"/>
-            <grid columns="2">
-                <label text="Input DPI:" verticalAlign="center"/>
-                <label id="dpi-label" verticalAlign="center"/>
-
-                <label text="Image dimensions:" verticalAlign="center"/>
-                <label id="dimensions-label" verticalAlign="center"/>
-            </grid>
-            <button id="load-button" text="Select Cover Art"/>
-        </vbox>
-        <vbox width="50%" height="100%" style="border-right: 2px solid $normal-border-color; padding: 5px;">
-            <section-header text="Output:"/>
+    <vbox width="100%" style="padding: 5px;">
+        <button id="load-button" text="Select Cover Art"/>
+        <hbox>
+            <label text="Image:" verticalAlign="center"/>
+            <label id="image-name-label" verticalAlign="center"/>
+        </hbox>
+        <hbox>
             <grid columns="2">
                 <label width= "90px" text="Page Output Size:" verticalAlign="center"/>
-                <dropdown width="50px">
+                <dropdown id="output-page-type" width="50px">
                     <data>
                         <item text="A4"/>
                         <item text="B4"/>
                     </data>
                 </dropdown>
                 <label width="90px" text="Output type:" verticalAlign="center"/>
-                <dropdown width="50px">
+                <dropdown id="output-type" width="50px">
                     <data>
                         <item text="PS3"/>
                         <item text="Wii"/>
                     </data>
                 </dropdown>
                 <label width="90px" text="Output DPI:" verticalAlign="center"/>
-                <text-field id="output-dpi" width="50px" restrictChars="0-9" maxChars="3"/>
+                <text-field id="output-dpi" width="50px" restrictChars="0-9" maxChars="3" text="300"/>
             </grid>
-        </vbox>
-    </hbox>
-    <vbox width="100%" height="50%" style="background-color: $default-background-color; padding: 5px;">
+            <button id="export-button" text="Preview Export" verticalAlign="bottom"/>
+        </hbox>
+    </vbox>
+    <vbox width="100%" height="100%" style="background-color: $default-background-color; padding: 5px;">
         <section-header text="Log:"/>
         <user-log id="userLog" width="100%" height="100%" scrollMode="native" horizontalScrollPolicy="never"/>
     </vbox>

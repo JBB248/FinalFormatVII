@@ -11,7 +11,7 @@ class UserLog extends ScrollView
     {
         var label = new Label();
         label.text = message;
-        label.wordWrap = true;
+        label.customStyle.width = _instance.width;
         _instance.addComponent(label);
     }
 

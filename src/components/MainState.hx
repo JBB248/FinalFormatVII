@@ -1,40 +1,35 @@
 package components;
 
-import flixel.FlxG;
-import flixel.FlxSprite;
-
 import haxe.ui.backend.flixel.UIState;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.containers.dialogs.Dialogs;
 import haxe.ui.containers.dialogs.OpenFileDialog;
+import haxe.ui.containers.dialogs.SaveFileDialog;
 import haxe.ui.events.MouseEvent;
 
+import openfl.display.Bitmap;
 import openfl.display.BitmapData;
+import openfl.display.PNGEncoderOptions;
+import openfl.geom.Matrix;
 
 using StringTools;
 
 @:build(haxe.ui.ComponentBuilder.build("src/components/main.xml"))
 class MainState extends UIState
 {
-    var dialog = new OpenFileDialog();
+    var dialog:OpenFileDialog;
 
-    var coverSprite:FlxSprite;
-    var sizeOutlineSprite:FlxSprite;
+    var coverBitmap:BitmapData;
 
 	override public function create()
 	{
-        coverSprite = new FlxSprite();
-        coverSprite.kill();
-
-        sizeOutlineSprite = new FlxSprite();
-        sizeOutlineSprite.kill();
-
         add(new flixel.addons.display.FlxBackdrop(new DebugSquare(0, 0)));
         // add(sizeOutlineSprite);
         // add(coverSprite);
 
         super.create();
 
+        dialog = new OpenFileDialog();
         dialog.onDialogClosed = loadCoverArt;
         dialog.options = {
             readContents: true,
@@ -66,25 +61,72 @@ class MainState extends UIState
         else
             return UserLog.addError("Invalid file submitted. Please submit a png or jpg file");
 
-        dpiLabel.text = Std.string(dpi);
+        // Make sure we don't clog memory
+        if(coverBitmap != null)
+            coverBitmap.dispose();
 
-        var bitmap = BitmapData.fromBytes(bytes);
-        coverSprite.loadGraphic(bitmap);
-        coverSprite.revive();
-        centerCoverSprite();
-    }
-
-    function centerCoverSprite():Void
-    {
-        // coverSprite.setGraphicSize(0, (FlxG.height - topBox.height) * 0.9);
-        // coverSprite.updateHitbox();
-        // coverSprite.x = FlxG.width * 0.5 - coverSprite.width * 0.5;
-        // coverSprite.y = topBox.height + (FlxG.height - topBox.height) * 0.5 - coverSprite.height * 0.5;
+        coverBitmap = BitmapData.fromBytes(bytes);
+        imageNameLabel.text = '<font color="#1E8BF0">${dialog.selectedFiles[0].name}</font>';
+        imageNameLabel.tooltip = dialog.selectedFiles[0].fullPath;
+        UserLog.addMessage(
+            'Successfully loaded <font color="#1E8BF0">${coverBitmap.width}x${coverBitmap.height}</font> px image with a resolution of <font color="#1E8BF0">${dpi}</font> DPI');
     }
 
     @:bind(loadButton, MouseEvent.CLICK)
     function onLoadButtonPressed(_):Void
         dialog.show();
+
+    @:bind(exportButton, MouseEvent.CLICK)
+    function onExportButtonPressed(_):Void
+    {
+        var fwidth:Float = PageDimensions.A4X;
+        var fheight:Float = PageDimensions.A4Y;
+
+        if(outputPageType.selectedItem == "B4")
+        {
+            fwidth = PageDimensions.B4X;
+            fheight = PageDimensions.B4Y;
+        }
+
+        final dpi = Std.parseInt(outputDpi.text);
+        final width = Math.ceil(dpi * fwidth);
+        final height = Math.ceil(dpi * fheight);
+
+        var exBitmapData = new BitmapData(width, height, false);
+
+        var swidth:Float = PageDimensions.PS3X;
+        var sheight:Float = PageDimensions.PS3Y;
+
+        if(outputPageType.selectedItem == "Wii")
+        {
+            swidth = PageDimensions.WIIX;
+            sheight = PageDimensions.WIIY;
+        }
+
+        var stretchBitmap = new Bitmap(coverBitmap);
+        stretchBitmap.width = Math.ceil(swidth * dpi);
+        stretchBitmap.height = Math.ceil(sheight * dpi);
+
+        var offsetX = 0;
+        var offsetY = 0;
+
+        exBitmapData.draw(stretchBitmap);
+        var bytes = exBitmapData.encode(exBitmapData.rect, new PNGEncoderOptions());
+        var saveDialog = new SaveFileDialog({
+            writeAsBinary: true,
+            extensions: [{label: "Image Files", extension: "png, jpeg, jpg"}]
+        });
+
+        saveDialog.fileInfo = {
+            bytes: bytes,
+            isBinary: true
+        };
+        saveDialog.onDialogClosed = function(event:DialogEvent) {
+            if(event.button != DialogButton.OK) return;
+        };
+
+        saveDialog.show();
+    }
 
     override function destroy():Void
     {
