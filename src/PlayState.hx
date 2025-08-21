@@ -55,11 +55,11 @@ class PlayState extends haxe.ui.backend.flixel.UIState
         coverSprite.setGraphicSize(0, (FlxG.height - topBox.height) * 0.9);
         coverSprite.updateHitbox();
         coverSprite.x = FlxG.width * 0.5 - coverSprite.width * 0.5;
-        coverSprite.y = topBox.height + (FlxG.height - topBox.height) * 0.5 - coverSprite.height * 0.5; 
+        coverSprite.y = topBox.height + (FlxG.height - topBox.height) * 0.5 - coverSprite.height * 0.5;
     }
 
     @:bind(loadButton, MouseEvent.CLICK)
-    function onLoadButtonPressed(_):Void 
+    function onLoadButtonPressed(_):Void
         dialog.show();
 
     override function destroy():Void
