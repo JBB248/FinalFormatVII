@@ -55,11 +55,11 @@ class MainState extends UIState
         if(path.endsWith("png"))
             dpi = DPIInterpreter.fromPNG(bytes);
         else if(path.endsWith("gif"))
-            return trace("gif file extension will not be supported. Please convert the image into png, or jpg");
+            return UserLog.addError("gif file extension will not be supported. Please convert the image into png, or jpg");
         else if(path.endsWith("bmp"))
-            return trace("bmp file extension is not currently supported. Please convert the image into png, or jpg");
+            return UserLog.addError("bmp file extension is not currently supported. Please convert the image into png, or jpg");
         else
-            return components.UserLog.addMessage("Invalid file submitted. Please submit a png or jpg file");
+            return UserLog.addError("Invalid file submitted. Please submit a png or jpg file");
 
         dpiLabel.text = "DPI: " + dpi;
 
