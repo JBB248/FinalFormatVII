@@ -19,7 +19,7 @@ class PlayState extends haxe.ui.backend.flixel.UIState
 	override public function create()
 	{
         coverSprite = new FlxSprite();
-        coverSprite.kill(); //why create something only to immeditely kill it-- this is the programming equivalant of an abortion
+        coverSprite.kill();
 
         add(new flixel.addons.display.FlxBackdrop(new DebugSquare(0, 0)));
         add(coverSprite);
