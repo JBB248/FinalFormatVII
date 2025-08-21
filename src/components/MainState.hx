@@ -19,14 +19,19 @@ class MainState extends UIState
     var dialog = new OpenFileDialog();
 
     var coverSprite:FlxSprite;
+    var sizeOutlineSprite:FlxSprite;
 
 	override public function create()
 	{
         coverSprite = new FlxSprite();
         coverSprite.kill();
 
+        sizeOutlineSprite = new FlxSprite();
+        sizeOutlineSprite.kill();
+
         add(new flixel.addons.display.FlxBackdrop(new DebugSquare(0, 0)));
-        add(coverSprite);
+        // add(sizeOutlineSprite);
+        // add(coverSprite);
 
         super.create();
 
@@ -61,7 +66,7 @@ class MainState extends UIState
         else
             return UserLog.addError("Invalid file submitted. Please submit a png or jpg file");
 
-        dpiLabel.text = "DPI: " + dpi;
+        dpiLabel.text = Std.string(dpi);
 
         var bitmap = BitmapData.fromBytes(bytes);
         coverSprite.loadGraphic(bitmap);
@@ -71,10 +76,10 @@ class MainState extends UIState
 
     function centerCoverSprite():Void
     {
-        coverSprite.setGraphicSize(0, (FlxG.height - topBox.height) * 0.9);
-        coverSprite.updateHitbox();
-        coverSprite.x = FlxG.width * 0.5 - coverSprite.width * 0.5;
-        coverSprite.y = topBox.height + (FlxG.height - topBox.height) * 0.5 - coverSprite.height * 0.5;
+        // coverSprite.setGraphicSize(0, (FlxG.height - topBox.height) * 0.9);
+        // coverSprite.updateHitbox();
+        // coverSprite.x = FlxG.width * 0.5 - coverSprite.width * 0.5;
+        // coverSprite.y = topBox.height + (FlxG.height - topBox.height) * 0.5 - coverSprite.height * 0.5;
     }
 
     @:bind(loadButton, MouseEvent.CLICK)
