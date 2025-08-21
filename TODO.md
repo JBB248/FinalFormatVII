@@ -1,8 +1,7 @@
-# TODO
-JBB,
+# Important
+- Resize images to fit necessary dimensions
+- Add blank space around image to fit standard page sizes
 
-I have no idea what needs to be done
-
-signed,
-
-IAustonFox
+## Improve
+- Add support for bmp (maybe)
+- Remove Flixel from project. This only really needs Lime
