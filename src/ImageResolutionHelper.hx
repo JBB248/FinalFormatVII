@@ -2,12 +2,15 @@ package;
 
 import components.UserLog;
 
-import haxe.Int64;
 import haxe.io.Bytes;
 import haxe.io.BytesInput;
 
 class ImageResolutionHelper
 {
+    /**
+     * Finds the resolution value stored in a PNG image file.
+     * If for any reason the process throws, the resolution will be defaulted to 72 DPI
+     */
     public static function fromPNG(bytes:Bytes):Int
     {
         if(!testPNGHeader(bytes))
@@ -67,6 +70,10 @@ class ImageResolutionHelper
     static inline var INCHES:Int = 2;
     static inline var CENTIMETERS:Int = 3;
 
+    /**
+     * Finds the `XResolution` value stored in a JPG image file.
+     * If for any reason the process throws, the resolution will be defaulted to 72 DPI
+     */
     public static function fromJPG(bytes:Bytes):Int
     {
         if(!testJPGHeader(bytes))
@@ -110,14 +117,14 @@ class ImageResolutionHelper
             return 72;
         }
 
-        final firstIFDOffset = readUInt32(stream).low; // We can cut off the high bits because the offset shouldn't be greater than 2^32
+        final firstIFDOffset = readUInt32(stream);
         if(firstIFDOffset < 8)
         {
             UserLog.addWarning("Invalid TIFF data (first offset less than 8). Defaulting to 72 DPI");
             return 72;
         }
 
-        final data = findResolutionTiffTag(stream, tiffOffset, tiffOffset + firstIFDOffset);
+        final data = findResolutionTiffTags(stream, tiffOffset, tiffOffset + firstIFDOffset);
         if(data.XRes != data.YRes)
             UserLog.addWarning("XResolution (" + data.XRes + ") does not match YResolution (" + data.YRes + ")");
 
@@ -142,6 +149,9 @@ class ImageResolutionHelper
         return bytes.get(0) == 255 && bytes.get(1) == 216;
     }
 
+    /**
+     * Finds and returns the position of the JPG Exif marker
+     */
     static function findEXIFMarker(bytes:Bytes):Int
     {
         var offset = 2;
@@ -166,9 +176,15 @@ class ImageResolutionHelper
         return -1;
     }
 
-    static function findResolutionTiffTag(stream:BytesInput, tiffStart:Int, dirStart:Int):{XRes:Int, YRes:Int, ResUnit:Int}
+    /**
+     * Iterates through Tiff tags for XResolution, YResolution, and ResolutionUnit,
+     * and returns each in a Haxe object
+     * 
+     * @param tiffStart The position in the stream that the Tiff section starts at
+     * @param dirStart  The position that the first tiff tag begins at
+     */
+    static function findResolutionTiffTags(stream:BytesInput, tiffStart:Int, dirStart:Int):{XRes:Int, YRes:Int, ResUnit:Int}
     {
-        stream.position = dirStart;
         final entries = stream.readUInt16();
         final data = {
             XRes: -1,
@@ -208,11 +224,17 @@ class ImageResolutionHelper
         return data;
     }
 
+    /**
+     * Reads the value indicated by a tag's offset value
+     * 
+     * @param entryOffset   The position in the stream of the tag
+     * @param tiffStart     The position in the stream that the Tiff section starts at
+     */
     static function readTagValue(stream:BytesInput, entryOffset:Int, tiffStart:Int):Int
     {
         final type = stream.readUInt16(); // Should be 3 or 5 for resolution values
         final numValues = readUInt32(stream); // This shouldn't matter for our purpose because it can only BE one number
-        final valueOffset = readUInt32(stream).low + tiffStart;
+        final valueOffset = readUInt32(stream) + tiffStart;
 
         if(type == 3) // Short
         {
@@ -224,7 +246,7 @@ class ImageResolutionHelper
             stream.position = valueOffset;
             final numerator = readUInt32(stream);
             final denominator = readUInt32(stream);
-            return (numerator / denominator).low;
+            return Math.ceil(numerator / denominator);
         }
 
         UserLog.addWarning("Resolution Tiff tag could not be read. Defaulting to 72 DPI");
@@ -232,15 +254,17 @@ class ImageResolutionHelper
     }
 
     /**
-     * The Haxe basic Int is 32bit and cannot correctly store a UInt32.
-     * Int64 should be able to hold the correct value
+     * Pretty much the same as readInt32(), but it forces unsigned behavior
+     * 
+     * This *could* lead to problems if the number exceeds the Int32 max value, 
+     * but that shouldn't happen in this context
      */
-    static function readUInt32(stream:BytesInput):Int64
+    static function readUInt32(stream:BytesInput):Int
     {
         var ch1 = stream.readByte();
         var ch2 = stream.readByte();
         var ch3 = stream.readByte();
         var ch4 = stream.readByte();
-        return stream.bigEndian ? Int64.make(ch2 | (ch1 << 8), ch4 | (ch3 << 8)) : Int64.make(ch4 | (ch3 << 8), ch2 | (ch1 << 8));
+        return stream.bigEndian ? ((ch1 << 24) | (ch2 << 16) | (ch3 << 8) | ch4) >>> 0 : ((ch4 << 24) | (ch3 << 16) | (ch2 << 8) | ch1) >>> 0;
     }
 }
