@@ -53,7 +53,9 @@ class MainState extends UIState
         var bytes = dialog.selectedFiles[0].bytes;
         var path = dialog.selectedFiles[0].fullPath.toLowerCase();
         if(path.endsWith("png"))
-            dpi = DPIInterpreter.fromPNG(bytes);
+            dpi = ImageResolutionHelper.fromPNG(bytes);
+        else if(path.endsWith(".jpg") || path.endsWith("jpeg"))
+            dpi = ImageResolutionHelper.fromJPG(bytes);
         else if(path.endsWith("gif"))
             return UserLog.addError("gif file extension will not be supported. Please convert the image into png, or jpg");
         else if(path.endsWith("bmp"))
