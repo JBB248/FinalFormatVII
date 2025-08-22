@@ -10,7 +10,6 @@ import haxe.ui.events.MouseEvent;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.PNGEncoderOptions;
-import openfl.geom.Matrix;
 
 using StringTools;
 
@@ -24,8 +23,6 @@ class MainState extends UIState
 	override public function create()
 	{
         add(new flixel.addons.display.FlxBackdrop(new DebugSquare(0, 0)));
-        // add(sizeOutlineSprite);
-        // add(coverSprite);
 
         super.create();
 
