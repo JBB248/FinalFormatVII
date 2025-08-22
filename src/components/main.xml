@@ -27,7 +27,7 @@
             </grid>
             <vbox width="100%" height="100%">
                 <hbox height="100%" horizontalAlign="right">
-                    <button id="export-button" text="Preview Export" verticalAlign="bottom"/>
+                    <button id="export-button" text="Preview Export" verticalAlign="bottom" disabled="true"/>
                 </hbox>
             </vbox>
         </hbox>
