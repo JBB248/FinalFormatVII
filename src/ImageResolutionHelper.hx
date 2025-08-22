@@ -1,21 +1,19 @@
 package;
 
-import components.UserLog;
-
 import haxe.io.Bytes;
 import haxe.io.BytesInput;
 
 class ImageResolutionHelper
 {
     /**
-     * Finds the resolution value stored in a PNG image file.
+     * Finds the resolution value in DPI stored in a PNG image file.
      * If for any reason the process throws, the resolution will be defaulted to 72 DPI
      */
-    public static function fromPNG(bytes:Bytes):Int
+    public static function findDPIFromPNG(bytes:Bytes):Int
     {
         if(!testPNGHeader(bytes))
         {
-            UserLog.addError("Submitted file is not a valid PNG");
+            throw("Submitted file is not a valid PNG");
             return -1;
         }
 
@@ -39,12 +37,12 @@ class ImageResolutionHelper
 
         if(ppmX < 0 || ppmY < 0)
         {
-            UserLog.addWarning("pHYs chunk not found. Defaulting to 72 DPI");
+            throw("pHYs chunk not found. Defaulting to 72 DPI");
             return 72;
         }
 
         if(ppmX != ppmY)
-            UserLog.addWarning("Horizontal ppm (" + ppmX + ") does not match vertical ppm (" + ppmY + ")");
+            throw("Horizontal ppm (" + ppmX + ") does not match vertical ppm (" + ppmY + ")");
 
         // Convert pixels per meter to dots per inch
         return Math.ceil(ppmX / 1000 * 25.4);
@@ -71,14 +69,14 @@ class ImageResolutionHelper
     static inline var CENTIMETERS:Int = 3;
 
     /**
-     * Finds the `XResolution` value stored in a JPG image file.
+     * Finds the `XResolution` value in DPI stored in a JPG image file.
      * If for any reason the process throws, the resolution will be defaulted to 72 DPI
      */
-    public static function fromJPG(bytes:Bytes):Int
+    public static function findDPIFromJPG(bytes:Bytes):Int
     {
         if(!testJPGHeader(bytes))
         {
-            UserLog.addError("Submitted file is not a valid JPG");
+            throw("Submitted file is not a valid JPG");
             return -1;
         }
 
@@ -86,7 +84,7 @@ class ImageResolutionHelper
         final tiffOffset = start + 6;
         if(start < 0)
         {
-            UserLog.addWarning("JPG Exif chunk could not be found. Defaulting to 72 DPI");
+            throw("JPG Exif chunk could not be found. Defaulting to 72 DPI");
             return 72;
         }
 
@@ -94,7 +92,7 @@ class ImageResolutionHelper
         var stream = new BytesInput(bytes, start);
         if(stream.readString(4) != "Exif")
         {
-            UserLog.addWarning("JPG Exif chunk could not be read. Defaulting to 72 DPI");
+            throw("JPG Exif chunk could not be read. Defaulting to 72 DPI");
             return 72;
         }
 
@@ -107,36 +105,36 @@ class ImageResolutionHelper
             stream.bigEndian = true;
         else
         {
-            UserLog.addWarning("Could not determine endianness. Defaulting to 72 DPI");
+            throw("Could not determine endianness. Defaulting to 72 DPI");
             return 72;
         }
 
         if(stream.readUInt16() != 42) // 0x002A
         {
-            UserLog.addWarning("Invalid TIFF data (no 0x002A). Defaulting to 72 DPI");
+            throw("Invalid TIFF data (no 0x002A). Defaulting to 72 DPI");
             return 72;
         }
 
         final firstIFDOffset = readUInt32(stream);
         if(firstIFDOffset < 8)
         {
-            UserLog.addWarning("Invalid TIFF data (first offset less than 8). Defaulting to 72 DPI");
+            throw("Invalid TIFF data (first offset less than 8). Defaulting to 72 DPI");
             return 72;
         }
 
         final data = findResolutionTiffTags(stream, tiffOffset, tiffOffset + firstIFDOffset);
         if(data.XRes != data.YRes)
-            UserLog.addWarning("XResolution (" + data.XRes + ") does not match YResolution (" + data.YRes + ")");
+            throw("XResolution (" + data.XRes + ") does not match YResolution (" + data.YRes + ")");
 
         if(data.ResUnit != INCHES)
         {
             if(data.ResUnit == CENTIMETERS)
             {
-                // Convert it
+                data.XRes = Math.ceil(data.XRes / 2.54);
             }
             else
             {
-                // Unknown unit, who knows
+                throw("Unknown unit found in Resolution Unit");
             }
         }
 
@@ -179,7 +177,7 @@ class ImageResolutionHelper
     /**
      * Iterates through Tiff tags for XResolution, YResolution, and ResolutionUnit,
      * and returns each in a Haxe object
-     * 
+     *
      * @param tiffStart The position in the stream that the Tiff section starts at
      * @param dirStart  The position that the first tiff tag begins at
      */
@@ -207,17 +205,17 @@ class ImageResolutionHelper
 
         if(data.XRes == -1)
         {
-            UserLog.addWarning("XResolution Tiff tag could not be found. Defaulting to 72 DPI");
+            throw("XResolution Tiff tag could not be found. Defaulting to 72 DPI");
             data.XRes = 72;
         }
         if(data.YRes == -1)
         {
-            UserLog.addWarning("YResolution Tiff tag could not be found. Defaulting to 72 DPI");
+            throw("YResolution Tiff tag could not be found. Defaulting to 72 DPI");
             data.XRes = 72;
         }
         if(data.ResUnit == -1)
         {
-            UserLog.addWarning("ResolutionUnit Tiff tag could not be found. Defaulting to Inches");
+            throw("ResolutionUnit Tiff tag could not be found. Defaulting to Inches");
             data.XRes = 2;
         }
 
@@ -226,7 +224,7 @@ class ImageResolutionHelper
 
     /**
      * Reads the value indicated by a tag's offset value
-     * 
+     *
      * @param entryOffset   The position in the stream of the tag
      * @param tiffStart     The position in the stream that the Tiff section starts at
      */
@@ -249,14 +247,14 @@ class ImageResolutionHelper
             return Math.ceil(numerator / denominator);
         }
 
-        UserLog.addWarning("Resolution Tiff tag could not be read. Defaulting to 72 DPI");
+        throw("Resolution Tiff tag could not be read. Defaulting to 72 DPI");
         return 72;
     }
 
     /**
      * Pretty much the same as readInt32(), but it forces unsigned behavior
-     * 
-     * This *could* lead to problems if the number exceeds the Int32 max value, 
+     *
+     * This *could* lead to problems if the number exceeds the Int32 max value,
      * but that shouldn't happen in this context
      */
     static function readUInt32(stream:BytesInput):Int

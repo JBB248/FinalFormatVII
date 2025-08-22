@@ -52,16 +52,23 @@ class MainState extends UIState
         var dpi = -1;
         var bytes = dialog.selectedFiles[0].bytes;
         var path = dialog.selectedFiles[0].fullPath.toLowerCase();
-        if(path.endsWith("png"))
-            dpi = ImageResolutionHelper.fromPNG(bytes);
-        else if(path.endsWith(".jpg") || path.endsWith("jpeg"))
-            dpi = ImageResolutionHelper.fromJPG(bytes);
-        else if(path.endsWith("gif"))
-            return UserLog.addError("gif file extension will not be supported. Please convert the image into png, or jpg");
-        else if(path.endsWith("bmp"))
-            return UserLog.addError("bmp file extension is not currently supported. Please convert the image into png, or jpg");
-        else
-            return UserLog.addError("Invalid file submitted. Please submit a png or jpg file");
+        try
+        {
+            if(path.endsWith("png"))
+                dpi = ImageResolutionHelper.findDPIFromPNG(bytes);
+            else if(path.endsWith(".jpg") || path.endsWith("jpeg"))
+                dpi = ImageResolutionHelper.findDPIFromJPG(bytes);
+            else if(path.endsWith("gif"))
+                return UserLog.addError("gif file extension will not be supported. Please convert the image into png, or jpg");
+            else if(path.endsWith("bmp"))
+                return UserLog.addError("bmp file extension is not currently supported. Please convert the image into png, or jpg");
+            else
+                return UserLog.addError("Invalid file submitted. Please submit a png or jpg file");
+        }
+        catch(error)
+        {
+            UserLog.addWarning(error.message);
+        }
 
         // Make sure we don't clog memory
         if(coverBitmap != null)
