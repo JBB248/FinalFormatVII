@@ -10,7 +10,7 @@ import haxe.ui.events.MouseEvent;
 
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
-import openfl.display.JPEGEncoderOptions;
+import openfl.display.PNGEncoderOptions;
 import openfl.geom.Matrix;
 
 using StringTools;
@@ -68,6 +68,7 @@ class MainState extends UIState
         catch(error)
         {
             UserLog.addWarning(error.message);
+            dpi = 72;
         }
 
         // Make sure we don't clog memory
@@ -118,19 +119,19 @@ class MainState extends UIState
             realCoverHeight = PageDimensions.WIIY;
         }
 
-        var digitalCoverWidth = Math.ceil(realCoverWidth * dpi);
-        var digitalCoverHeight = Math.ceil(realCoverHeight * dpi);
+        final digitalCoverWidth = Math.ceil(realCoverWidth * dpi);
+        final digitalCoverHeight = Math.ceil(realCoverHeight * dpi);
 
         var stretchBitmap = new Bitmap(coverBitmap);
         stretchBitmap.width = digitalCoverWidth;
         stretchBitmap.height = digitalCoverHeight;
 
-        var offsetX = (digitalPageWidth - digitalCoverWidth) / 2;
-        var offsetY = (digitalPageHeight - digitalCoverHeight) / 4;
+        final offsetX = (digitalPageWidth - digitalCoverWidth) / 2;
+        final offsetY = (digitalPageHeight - digitalCoverHeight) / 4;
 
         exBitmapData.draw(stretchBitmap, new Matrix(1, 0, 0, 1, offsetX, offsetY));
 
-        var bytes = exBitmapData.encode(exBitmapData.rect, new JPEGEncoderOptions(100));
+        var bytes = ImageResolutionHelper.writeDPIToPNG(exBitmapData.encode(exBitmapData.rect, new PNGEncoderOptions()), dpi);
         var dialog = new SaveFileDialog();
         dialog.options = {
             title: "Save Formatted Cover Art",
@@ -147,7 +148,7 @@ class MainState extends UIState
         var split = coverBitmapName.split(".");
         split.pop(); // Remove extension
         dialog.fileInfo = {
-            name: outputPageType.selectedItem.text + "-" + split.join("") + ".jpg",
+            name: outputPageType.selectedItem.text + "-" + split.join("") + ".png",
             bytes: bytes
         }
         dialog.show();
