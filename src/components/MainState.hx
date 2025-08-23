@@ -98,7 +98,7 @@ class MainState extends UIState
         var realPageWidth:Float = PageDimensions.A4X;
         var realPafeHeight:Float = PageDimensions.A4Y;
 
-        if(outputPageType.selectedItem == "B4")
+        if(outputPageType.selectedItem.text == "B4")
         {
             realPageWidth = PageDimensions.B4X;
             realPafeHeight = PageDimensions.B4Y;
