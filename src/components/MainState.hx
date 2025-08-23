@@ -11,6 +11,7 @@ import haxe.ui.events.MouseEvent;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.JPEGEncoderOptions;
+import openfl.geom.Matrix;
 
 using StringTools;
 
@@ -93,40 +94,43 @@ class MainState extends UIState
         if(coverBitmap == null)
             return UserLog.addError("No"); // For now
 
-        var fwidth:Float = PageDimensions.A4X;
-        var fheight:Float = PageDimensions.A4Y;
+        var realPageWidth:Float = PageDimensions.A4X;
+        var realPafeHeight:Float = PageDimensions.A4Y;
 
         if(outputPageType.selectedItem == "B4")
         {
-            fwidth = PageDimensions.B4X;
-            fheight = PageDimensions.B4Y;
+            realPageWidth = PageDimensions.B4X;
+            realPafeHeight = PageDimensions.B4Y;
         }
 
         final dpi = Std.parseInt(outputDpi.text);
-        final width = Math.ceil(dpi * fwidth);
-        final height = Math.ceil(dpi * fheight);
+        final digitalPageWidth = Math.ceil(dpi * realPageWidth);
+        final digitalPageHeight = Math.ceil(dpi * realPafeHeight);
 
-        var exBitmapData = new BitmapData(width, height, false);
+        var exBitmapData = new BitmapData(digitalPageWidth, digitalPageHeight, false);
 
-        var swidth:Float = PageDimensions.PS3X;
-        var sheight:Float = PageDimensions.PS3Y;
+        var realCoverWidth:Float = PageDimensions.PS3X;
+        var realCoverHeight:Float = PageDimensions.PS3Y;
 
         if(outputPageType.selectedItem == "Wii")
         {
-            swidth = PageDimensions.WIIX;
-            sheight = PageDimensions.WIIY;
+            realCoverWidth = PageDimensions.WIIX;
+            realCoverHeight = PageDimensions.WIIY;
         }
 
+        var digitalCoverWidth = Math.ceil(realCoverWidth * dpi);
+        var digitalCoverHeight = Math.ceil(realCoverHeight * dpi);
+
         var stretchBitmap = new Bitmap(coverBitmap);
-        stretchBitmap.width = Math.ceil(swidth * dpi);
-        stretchBitmap.height = Math.ceil(sheight * dpi);
+        stretchBitmap.width = digitalCoverWidth;
+        stretchBitmap.height = digitalCoverHeight;
 
-        var offsetX = 0;
-        var offsetY = 0;
+        var offsetX = (digitalPageWidth - digitalCoverWidth) / 2;
+        var offsetY = (digitalPageHeight - digitalCoverHeight) / 4;
 
-        exBitmapData.draw(stretchBitmap);
+        exBitmapData.draw(stretchBitmap, new Matrix(1, 0, 0, 1, offsetX, offsetY));
+
         var bytes = exBitmapData.encode(exBitmapData.rect, new JPEGEncoderOptions(100));
-
         var dialog = new SaveFileDialog();
         dialog.options = {
             title: "Save Formatted Cover Art",
@@ -134,6 +138,9 @@ class MainState extends UIState
         }
         dialog.onDialogClosed = function(event) {
             if(event.button != DialogButton.OK) return;
+
+            // Get rid of the export bitmap in memory
+            exBitmapData.dispose();
 
             Dialogs.messageBox("File saved!", "Save Result", MessageBoxType.TYPE_INFO);
         }
