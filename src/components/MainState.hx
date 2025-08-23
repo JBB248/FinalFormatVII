@@ -3,6 +3,7 @@ package components;
 import haxe.ui.backend.flixel.UIState;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.containers.dialogs.Dialogs;
+import haxe.ui.containers.dialogs.MessageBox;
 import haxe.ui.containers.dialogs.OpenFileDialog;
 import haxe.ui.containers.dialogs.SaveFileDialog;
 import haxe.ui.events.MouseEvent;
@@ -10,6 +11,7 @@ import haxe.ui.events.MouseEvent;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.PNGEncoderOptions;
+import openfl.geom.Matrix;
 
 using StringTools;
 
@@ -19,6 +21,7 @@ class MainState extends UIState
     var dialog:OpenFileDialog;
 
     var coverBitmap:BitmapData;
+    var coverBitmapName:String;
 
 	override public function create()
 	{
@@ -65,6 +68,7 @@ class MainState extends UIState
         catch(error)
         {
             UserLog.addWarning(error.message);
+            dpi = 72;
         }
 
         // Make sure we don't clog memory
@@ -72,10 +76,13 @@ class MainState extends UIState
             coverBitmap.dispose();
 
         coverBitmap = BitmapData.fromBytes(bytes);
+        coverBitmapName = dialog.selectedFiles[0].name;
         imageNameLabel.text = '<font color="#1E8BF0">${dialog.selectedFiles[0].name}</font>';
         imageNameLabel.tooltip = dialog.selectedFiles[0].fullPath;
         UserLog.addMessage(
             'Successfully loaded <font color="#1E8BF0">${coverBitmap.width}x${coverBitmap.height}</font> px image with a resolution of <font color="#1E8BF0">${dpi}</font> DPI');
+
+        exportButton.disabled = false;
     }
 
     @:bind(loadButton, MouseEvent.CLICK)
@@ -85,53 +92,66 @@ class MainState extends UIState
     @:bind(exportButton, MouseEvent.CLICK)
     function onExportButtonPressed(_):Void
     {
-        var fwidth:Float = PageDimensions.A4X;
-        var fheight:Float = PageDimensions.A4Y;
+        if(coverBitmap == null)
+            return UserLog.addError("No"); // For now
 
-        if(outputPageType.selectedItem == "B4")
+        var realPageWidth:Float = PageDimensions.A4X;
+        var realPafeHeight:Float = PageDimensions.A4Y;
+
+        if(outputPageType.selectedItem.text == "B4")
         {
-            fwidth = PageDimensions.B4X;
-            fheight = PageDimensions.B4Y;
+            realPageWidth = PageDimensions.B4X;
+            realPafeHeight = PageDimensions.B4Y;
         }
 
         final dpi = Std.parseInt(outputDpi.text);
-        final width = Math.ceil(dpi * fwidth);
-        final height = Math.ceil(dpi * fheight);
+        final digitalPageWidth = Math.ceil(dpi * realPageWidth);
+        final digitalPageHeight = Math.ceil(dpi * realPafeHeight);
 
-        var exBitmapData = new BitmapData(width, height, false);
+        var exBitmapData = new BitmapData(digitalPageWidth, digitalPageHeight, false);
 
-        var swidth:Float = PageDimensions.PS3X;
-        var sheight:Float = PageDimensions.PS3Y;
+        var realCoverWidth:Float = PageDimensions.PS3X;
+        var realCoverHeight:Float = PageDimensions.PS3Y;
 
-        if(outputPageType.selectedItem == "Wii")
+        if(outputCoverType.selectedItem.text == "Wii")
         {
-            swidth = PageDimensions.WIIX;
-            sheight = PageDimensions.WIIY;
+            realCoverWidth = PageDimensions.WIIX;
+            realCoverHeight = PageDimensions.WIIY;
         }
 
+        final digitalCoverWidth = Math.ceil(realCoverWidth * dpi);
+        final digitalCoverHeight = Math.ceil(realCoverHeight * dpi);
+
         var stretchBitmap = new Bitmap(coverBitmap);
-        stretchBitmap.width = Math.ceil(swidth * dpi);
-        stretchBitmap.height = Math.ceil(sheight * dpi);
+        stretchBitmap.width = digitalCoverWidth;
+        stretchBitmap.height = digitalCoverHeight;
 
-        var offsetX = 0;
-        var offsetY = 0;
+        final offsetX = (digitalPageWidth - digitalCoverWidth) / 2;
+        final offsetY = (digitalPageHeight - digitalCoverHeight) / 2;
 
-        exBitmapData.draw(stretchBitmap);
-        var bytes = exBitmapData.encode(exBitmapData.rect, new PNGEncoderOptions());
-        var saveDialog = new SaveFileDialog({
-            writeAsBinary: true,
-            extensions: [{label: "Image Files", extension: "png, jpeg, jpg"}]
-        });
+        exBitmapData.draw(stretchBitmap, new Matrix(1, 0, 0, 1, offsetX, offsetY));
 
-        saveDialog.fileInfo = {
-            bytes: bytes,
-            isBinary: true
-        };
-        saveDialog.onDialogClosed = function(event:DialogEvent) {
+        var bytes = ImageResolutionHelper.writeDPIToPNG(exBitmapData.encode(exBitmapData.rect, new PNGEncoderOptions()), dpi);
+        var dialog = new SaveFileDialog();
+        dialog.options = {
+            title: "Save Formatted Cover Art",
+            writeAsBinary: true
+        }
+        dialog.onDialogClosed = function(event) {
             if(event.button != DialogButton.OK) return;
-        };
 
-        saveDialog.show();
+            // Get rid of the export bitmap in memory
+            exBitmapData.dispose();
+
+            Dialogs.messageBox("File saved!", "Save Result", MessageBoxType.TYPE_INFO);
+        }
+        var split = coverBitmapName.split(".");
+        split.pop(); // Remove extension
+        dialog.fileInfo = {
+            name: outputPageType.selectedItem.text + "-" + split.join("") + ".png",
+            bytes: bytes
+        }
+        dialog.show();
     }
 
     override function destroy():Void

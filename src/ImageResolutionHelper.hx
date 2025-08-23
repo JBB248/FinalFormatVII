@@ -1,6 +1,7 @@
 package;
 
 import haxe.io.Bytes;
+import haxe.io.BytesBuffer;
 import haxe.io.BytesInput;
 
 class ImageResolutionHelper
@@ -17,35 +18,54 @@ class ImageResolutionHelper
             return -1;
         }
 
-        var offset = 8;
-        var ppmX = -1;
-        var ppmY = -1;
-        while(offset < bytes.length)
-        {
-            // Should be 32 bit, but we can't hold that and it shouldn't get that high anyways
-            final chunkLength = (bytes.get(offset + 2) << 8) | bytes.get(offset + 3);
-            final chunkType = bytes.getString(offset + 4, 4);
-            if(chunkType == "pHYs")
-            {
-                ppmX = (bytes.get(offset + 8) << 24) | (bytes.get(offset + 9) << 16) | (bytes.get(offset + 10) << 8) | bytes.get(offset + 11);
-                ppmY = (bytes.get(offset + 12) << 24) | (bytes.get(offset + 13) << 16) | (bytes.get(offset + 14) << 8) | bytes.get(offset + 15);
-                break;
-            }
-
-            offset += chunkLength + 12;
-        }
-
-        if(ppmX < 0 || ppmY < 0)
-        {
+        final marker = findpHYsMarker(bytes);
+        if(marker < 1)
             throw("pHYs chunk not found. Defaulting to 72 DPI");
-            return 72;
-        }
+
+        final ppmX = (bytes.get(marker + 8) << 24) | (bytes.get(marker + 9) << 16) | (bytes.get(marker + 10) << 8) | bytes.get(marker + 11) >>> 0;
+        final ppmY = (bytes.get(marker + 12) << 24) | (bytes.get(marker + 13) << 16) | (bytes.get(marker + 14) << 8) | bytes.get(marker + 15) >>> 0;
 
         if(ppmX != ppmY)
             throw("Horizontal ppm (" + ppmX + ") does not match vertical ppm (" + ppmY + ")");
 
         // Convert pixels per meter to dots per inch
         return Math.ceil(ppmX / 1000 * 25.4);
+    }
+
+    /**
+     * Returns a *new* Bytes instance with the specified dpi written to the pHYs chunk.
+     * If the pHYs chunk does not exist, it is added
+     */
+    public static function writeDPIToPNG(bytes:Bytes, dpi:Int):Bytes
+    {
+        dpi = Math.floor(dpi / 25.4 * 1000);
+        final marker = findpHYsMarker(bytes);
+        if(marker < 1)
+        {
+            final buffer = new BytesBuffer();
+            final IHDRSize = (bytes.get(8) << 24) | (bytes.get(9) << 16) | (bytes.get(10) << 8) | bytes.get(11) >>> 0;
+            final offset = 8 + IHDRSize + 12;
+            buffer.addBytes(bytes, 0, offset); // Add the PNG header and IHDR chunk first
+            addpHYsToBytes(buffer, dpi);
+            buffer.addBytes(bytes, offset, bytes.length - offset);
+            bytes = buffer.getBytes();
+        }
+        else
+        {
+            bytes = bytes.sub(0, bytes.length);
+
+            bytes.set(marker + 8, dpi >> 24 & 0xFF); // ppmX
+            bytes.set(marker + 9, dpi >> 16 & 0xFF);
+            bytes.set(marker + 10, dpi >> 8 & 0xFF);
+            bytes.set(marker + 11, dpi & 0xFF);
+
+            bytes.set(marker + 12, dpi >> 24 & 0xFF); // ppmY
+            bytes.set(marker + 13, dpi >> 16 & 0xFF);
+            bytes.set(marker + 14, dpi >> 8 & 0xFF);
+            bytes.set(marker + 15, dpi & 0xFF);
+        }
+
+        return bytes;
     }
 
     inline static function testPNGHeader(bytes:Bytes):Bool
@@ -58,6 +78,49 @@ class ImageResolutionHelper
             && bytes.get(5) == 10
             && bytes.get(6) == 26
             && bytes.get(7) == 10;
+    }
+
+    static function findpHYsMarker(bytes:Bytes):Int
+    {
+        var offset = 8;
+        while(offset < bytes.length)
+        {
+            final chunkLength = (bytes.get(offset) << 24) | (bytes.get(offset + 1) << 16) | (bytes.get(offset + 2) << 8) | bytes.get(offset + 3) >>> 0;
+            final chunkType = bytes.getString(offset + 4, 4);
+            if(chunkType == "pHYs")
+                return offset;
+
+            offset += chunkLength + 12;
+        }
+        
+        return -1;
+    }
+
+    static function addpHYsToBytes(buffer:BytesBuffer, dpi:Int):Void
+    {
+        buffer.addByte(0); // Chunk Size: 9 bytes
+        buffer.addByte(0);
+        buffer.addByte(0);
+        buffer.addByte(9);
+
+        buffer.addString("pHYs"); // Label
+
+        buffer.addByte(dpi >> 24 & 0xFF); // ppmX
+        buffer.addByte(dpi >> 16 & 0xFF);
+        buffer.addByte(dpi >> 8 & 0xFF);
+        buffer.addByte(dpi & 0xFF);
+
+        buffer.addByte(dpi >> 24 & 0xFF); // ppmY
+        buffer.addByte(dpi >> 16 & 0xFF);
+        buffer.addByte(dpi >> 8 & 0xFF);
+        buffer.addByte(dpi & 0xFF);
+
+        buffer.addByte(1);  // Unit Specifier
+
+        buffer.addByte(0x78); // I have no idea what this is, but it needs to be here
+        buffer.addByte(0xA5);
+        buffer.addByte(0x3F);
+        buffer.addByte(0x76);
     }
 
     // JPG Exif metadata tags
@@ -83,18 +146,12 @@ class ImageResolutionHelper
         final start = findEXIFMarker(bytes);
         final tiffOffset = start + 6;
         if(start < 0)
-        {
             throw("JPG Exif chunk could not be found. Defaulting to 72 DPI");
-            return 72;
-        }
 
         // Nead to use the stream because it acknowledges endianness
         var stream = new BytesInput(bytes, start);
         if(stream.readString(4) != "Exif")
-        {
             throw("JPG Exif chunk could not be read. Defaulting to 72 DPI");
-            return 72;
-        }
 
         stream.position += 2; // Skip to endian determinant
 
@@ -104,23 +161,14 @@ class ImageResolutionHelper
         else if(endianness == 19789) // 0x4D4D
             stream.bigEndian = true;
         else
-        {
             throw("Could not determine endianness. Defaulting to 72 DPI");
-            return 72;
-        }
 
         if(stream.readUInt16() != 42) // 0x002A
-        {
             throw("Invalid TIFF data (no 0x002A). Defaulting to 72 DPI");
-            return 72;
-        }
 
         final firstIFDOffset = readUInt32(stream);
         if(firstIFDOffset < 8)
-        {
             throw("Invalid TIFF data (first offset less than 8). Defaulting to 72 DPI");
-            return 72;
-        }
 
         final data = findResolutionTiffTags(stream, tiffOffset, tiffOffset + firstIFDOffset);
         if(data.XRes != data.YRes)
@@ -129,13 +177,9 @@ class ImageResolutionHelper
         if(data.ResUnit != INCHES)
         {
             if(data.ResUnit == CENTIMETERS)
-            {
                 data.XRes = Math.ceil(data.XRes / 2.54);
-            }
             else
-            {
                 throw("Unknown unit found in Resolution Unit");
-            }
         }
 
         stream.close();
@@ -204,20 +248,11 @@ class ImageResolutionHelper
         }
 
         if(data.XRes == -1)
-        {
             throw("XResolution Tiff tag could not be found. Defaulting to 72 DPI");
-            data.XRes = 72;
-        }
         if(data.YRes == -1)
-        {
             throw("YResolution Tiff tag could not be found. Defaulting to 72 DPI");
-            data.XRes = 72;
-        }
         if(data.ResUnit == -1)
-        {
-            throw("ResolutionUnit Tiff tag could not be found. Defaulting to Inches");
-            data.XRes = 2;
-        }
+            throw("ResolutionUnit Tiff tag could not be found. Defaulting to 72 DPI");
 
         return data;
     }
@@ -248,7 +283,6 @@ class ImageResolutionHelper
         }
 
         throw("Resolution Tiff tag could not be read. Defaulting to 72 DPI");
-        return 72;
     }
 
     /**
