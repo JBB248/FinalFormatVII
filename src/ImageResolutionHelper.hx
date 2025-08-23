@@ -38,6 +38,7 @@ class ImageResolutionHelper
      */
     public static function writeDPIToPNG(bytes:Bytes, dpi:Int):Bytes
     {
+        dpi = Math.floor(dpi / 25.4 * 1000);
         final marker = findpHYsMarker(bytes);
         if(marker < 1)
         {
@@ -45,15 +46,23 @@ class ImageResolutionHelper
             final IHDRSize = (bytes.get(8) << 24) | (bytes.get(9) << 16) | (bytes.get(10) << 8) | bytes.get(11) >>> 0;
             final offset = 8 + IHDRSize + 12;
             buffer.addBytes(bytes, 0, offset); // Add the PNG header and IHDR chunk first
-            addpHYsToBytes(buffer, 11811);
+            addpHYsToBytes(buffer, dpi);
             buffer.addBytes(bytes, offset, bytes.length - offset);
             bytes = buffer.getBytes();
         }
         else
         {
             bytes = bytes.sub(0, bytes.length);
-            bytes.setInt32(marker + 8, dpi);
-            bytes.setInt32(marker + 12, dpi);
+
+            bytes.set(marker + 8, dpi >> 24 & 0xFF); // ppmX
+            bytes.set(marker + 9, dpi >> 16 & 0xFF);
+            bytes.set(marker + 10, dpi >> 8 & 0xFF);
+            bytes.set(marker + 11, dpi & 0xFF);
+
+            bytes.set(marker + 12, dpi >> 24 & 0xFF); // ppmY
+            bytes.set(marker + 13, dpi >> 16 & 0xFF);
+            bytes.set(marker + 14, dpi >> 8 & 0xFF);
+            bytes.set(marker + 15, dpi & 0xFF);
         }
 
         return bytes;

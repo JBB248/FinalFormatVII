@@ -113,7 +113,7 @@ class MainState extends UIState
         var realCoverWidth:Float = PageDimensions.PS3X;
         var realCoverHeight:Float = PageDimensions.PS3Y;
 
-        if(outputPageType.selectedItem == "Wii")
+        if(outputCoverType.selectedItem.text == "Wii")
         {
             realCoverWidth = PageDimensions.WIIX;
             realCoverHeight = PageDimensions.WIIY;
@@ -127,7 +127,7 @@ class MainState extends UIState
         stretchBitmap.height = digitalCoverHeight;
 
         final offsetX = (digitalPageWidth - digitalCoverWidth) / 2;
-        final offsetY = (digitalPageHeight - digitalCoverHeight) / 4;
+        final offsetY = (digitalPageHeight - digitalCoverHeight) / 2;
 
         exBitmapData.draw(stretchBitmap, new Matrix(1, 0, 0, 1, offsetX, offsetY));
 
