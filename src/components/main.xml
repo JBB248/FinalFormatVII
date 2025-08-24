@@ -13,18 +13,35 @@
         </hbox>
         <hbox width="100%">
             <grid columns="2">
-                <label width= "90px" text="Page Output Size:" verticalAlign="center"/>
-                <dropdown id="output-page-type" width="50px">
+                <label width="90px" text="Cover type:" verticalAlign="center"/>
+                <dropdown id="output-cover-type" width="140px" dropdownSize="6" searchable="true" searchPrompt="Find Cover">
                     <data>
-                        <item text="A4"/>
-                        <item text="B4"/>
+                        <item text="CD (Front)"/>
+                        <item text="CD (Back)"/>
+                        <item text="DVD"/>
+                        <item text="DVD SLIM"/>
+                        <item text="BLURAY"/>
+                        <item text="BLURAY SLIM"/>
+                        <item text="GameCube"/>
+                        <item text="PS1 (Front)"/>
+                        <item text="PS1 (Back)"/>
+                        <item text="PS2"/>
+                        <item text="PS3"/>
+                        <item text="PS4"/>
+                        <item text="PS5"/>
+                        <item text="XBox"/>
+                        <item text="XBox 360"/>
+                        <item text="XBox One"/>
+                        <item text="XBox Series X"/>
+                        <item text="Wii"/>
+                        <item text="WiiU"/>
                     </data>
                 </dropdown>
-                <label width="90px" text="Output type:" verticalAlign="center"/>
-                <dropdown id="output-cover-type" width="50px">
+                <label width= "90px" text="Page Output Size:" verticalAlign="center"/>
+                <dropdown id="output-page-type">
                     <data>
-                        <item text="PS3"/>
-                        <item text="Wii"/>
+                        <item text="A4 (11.7x8.3in)"/>
+                        <item text="B4 (13.9x9.8in)"/>
                     </data>
                 </dropdown>
                 <label width="90px" text="Output DPI:" verticalAlign="center"/>

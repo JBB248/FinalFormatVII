@@ -13,6 +13,7 @@ import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.PNGEncoderOptions;
 import openfl.geom.Matrix;
+import openfl.net.URLRequest;
 
 using StringTools;
 
@@ -24,7 +25,7 @@ class MainView extends UIState
     var coverBitmap:BitmapData;
     var coverBitmapName:String;
 
-	override public function create()
+	override public function create():Void
 	{
         add(new flixel.addons.display.FlxBackdrop(new DebugSquare(0, 0)));
 
@@ -39,9 +40,11 @@ class MainView extends UIState
             extensions: [{label: "Image Files", extension: "png, jpeg, jpg"}],
             title: "Select Cover Art"
         };
+
+        trace(outputCoverType.actualComponentWidth);
 	}
 
-	override public function update(elapsed:Float)
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 	}
@@ -92,7 +95,7 @@ class MainView extends UIState
 
     @:bind(launchButton, MouseEvent.CLICK)
     function onFindCoversButtonPressed(_):Void
-        Lib.getURL("https://www.thecoverproject.net/");
+        Lib.getURL(new URLRequest("https://www.thecoverproject.net/"), "_blank");
 
     @:bind(exportButton, MouseEvent.CLICK)
     function onExportButtonPressed(_):Void
@@ -115,13 +118,27 @@ class MainView extends UIState
 
         var exBitmapData = new BitmapData(digitalPageWidth, digitalPageHeight, false);
 
-        var realCoverWidth:Float = PageDimensions.PS3X;
-        var realCoverHeight:Float = PageDimensions.PS3Y;
+        var realCoverWidth:Float = PageDimensions.BLURAYX;
+        var realCoverHeight:Float = PageDimensions.BLURAYY;
 
-        if(outputCoverType.selectedItem.text == "Wii")
+        if(outputCoverType.selectedItem.text == "DVD")
         {
-            realCoverWidth = PageDimensions.WIIX;
-            realCoverHeight = PageDimensions.WIIY;
+            realCoverWidth = PageDimensions.DVDX;
+            realCoverHeight = PageDimensions.DVDY;
+        }
+        else if(outputCoverType.selectedItem.text == "CD Front")
+        {
+            realCoverWidth = PageDimensions.CDFRONTX;
+            realCoverHeight = PageDimensions.CDFRONTY;
+        }
+        else if(outputCoverType.selectedItem.text == "CD Back")
+        {
+            realCoverWidth = PageDimensions.CDBACKX;
+            realCoverHeight = PageDimensions.CDBACKY;
+        }
+        else
+        {
+            return UserLog.addError("The selected cover size has not been programmed yet");
         }
 
         final digitalCoverWidth = Math.ceil(realCoverWidth * dpi);
