@@ -8,6 +8,7 @@ import haxe.ui.containers.dialogs.OpenFileDialog;
 import haxe.ui.containers.dialogs.SaveFileDialog;
 import haxe.ui.events.MouseEvent;
 
+import openfl.Lib;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.PNGEncoderOptions;
@@ -88,6 +89,10 @@ class MainView extends UIState
     @:bind(loadButton, MouseEvent.CLICK)
     function onLoadButtonPressed(_):Void
         dialog.show();
+
+    @:bind(launchButton, MouseEvent.CLICK)
+    function onFindCoversButtonPressed(_):Void
+        Lib.getURL("https://www.thecoverproject.net/");
 
     @:bind(exportButton, MouseEvent.CLICK)
     function onExportButtonPressed(_):Void
