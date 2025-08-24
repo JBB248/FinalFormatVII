@@ -16,7 +16,7 @@ import openfl.geom.Matrix;
 using StringTools;
 
 @:build(haxe.ui.ComponentBuilder.build("src/components/main.xml"))
-class MainState extends UIState
+class MainView extends UIState
 {
     var dialog:OpenFileDialog;
 
@@ -35,7 +35,7 @@ class MainState extends UIState
             readContents: true,
             readAsBinary: true,
             multiple: false,
-            extensions: FileDialogTypes.IMAGES,
+            extensions: [{label: "Image Files", extension: "png, jpeg, jpg"}],
             title: "Select Cover Art"
         };
 	}

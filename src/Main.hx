@@ -7,7 +7,7 @@ import haxe.ui.Toolkit;
 
 class Main extends openfl.display.Sprite
 {
-    var initialState:InitialState = components.MainState.new;
+    var initialState:InitialState = components.MainView.new;
 
 	public function new()
 	{
