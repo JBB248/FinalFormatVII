@@ -103,46 +103,22 @@ class MainView extends UIState
         if(coverBitmap == null)
             return UserLog.addError("No"); // For now
 
-        var realPageWidth:Float = PageDimensions.A4X;
-        var realPafeHeight:Float = PageDimensions.A4Y;
-
-        if(outputPageType.selectedItem.text == "B4")
-        {
-            realPageWidth = PageDimensions.B4X;
-            realPafeHeight = PageDimensions.B4Y;
-        }
+        var realPageSize = PageSizeHelper.getDimensionsFromString(outputPageType.selectedItem.text);
+        if(realPageSize.width < 1 || realPageSize.height < 1)
+            return UserLog.addError("The selected page size has no internal data");
 
         final dpi = Std.parseInt(outputDpi.text);
-        final digitalPageWidth = Math.ceil(dpi * realPageWidth);
-        final digitalPageHeight = Math.ceil(dpi * realPafeHeight);
+        final digitalPageWidth = Math.ceil(dpi * realPageSize.width);
+        final digitalPageHeight = Math.ceil(dpi * realPageSize.height);
 
         var exBitmapData = new BitmapData(digitalPageWidth, digitalPageHeight, false);
 
-        var realCoverWidth:Float = PageDimensions.BLURAYX;
-        var realCoverHeight:Float = PageDimensions.BLURAYY;
+        var realCoverSize = PageSizeHelper.getDimensionsFromString(outputCoverType.selectedItem.text);
+        if(realCoverSize.width < 1 || realCoverSize.height < 1)
+            return UserLog.addError("The selected cover size has no internal data");
 
-        if(outputCoverType.selectedItem.text == "DVD")
-        {
-            realCoverWidth = PageDimensions.DVDX;
-            realCoverHeight = PageDimensions.DVDY;
-        }
-        else if(outputCoverType.selectedItem.text == "CD Front")
-        {
-            realCoverWidth = PageDimensions.CDFRONTX;
-            realCoverHeight = PageDimensions.CDFRONTY;
-        }
-        else if(outputCoverType.selectedItem.text == "CD Back")
-        {
-            realCoverWidth = PageDimensions.CDBACKX;
-            realCoverHeight = PageDimensions.CDBACKY;
-        }
-        else
-        {
-            return UserLog.addError("The selected cover size has not been programmed yet");
-        }
-
-        final digitalCoverWidth = Math.ceil(realCoverWidth * dpi);
-        final digitalCoverHeight = Math.ceil(realCoverHeight * dpi);
+        final digitalCoverWidth = Math.ceil(realCoverSize.width * dpi);
+        final digitalCoverHeight = Math.ceil(realCoverSize.height * dpi);
 
         var stretchBitmap = new Bitmap(coverBitmap);
         stretchBitmap.width = digitalCoverWidth;
