@@ -1,0 +1,20 @@
+   ___ _             _     ___                          _           _____ _____ 
+  / __(_)_ __   __ _| |   / __\__  _ __ _ __ ___   __ _| |_  /\   /\\_   \\_   \
+ / _\ | | '_ \ / _` | |  / _\/ _ \| '__| '_ ` _ \ / _` | __| \ \ / / / /\/ / /\/
+/ /   | | | | | (_| | | / / | (_) | |  | | | | | | (_| | |_   \ V /\/ /_/\/ /_  
+\/    |_|_| |_|\__,_|_| \/   \___/|_|  |_| |_| |_|\__,_|\__|   \_/\____/\____/  
+                                                                                
+
+HEY
+Thanks for downloading Final Format VII
+This a formatting app that I made to print out a cover for Final Fantasy VII
+
+Using this app is as simple as finding a cover art online, feeding it into this app, and pressing export!
+It will create an image automatically sized to the selected page size 
+so that there's no concern of a printer incorrectly sizing the cover art
+
+If you find that a cover is printing incorrectly sized, report it here:
+https://github.com/JBB248/FinalFormatVII/issues
+
+Known issues:
+After selecting a cover type, the text in the dropdown gets cut off. Just typing something into the searchbar will fix it

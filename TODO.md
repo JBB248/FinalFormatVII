@@ -1,7 +1,9 @@
 # Important
-- Resize images to fit necessary dimensions
-- Add blank space around image to fit standard page sizes
+- Add extra formatting for CDs to print front and back covers on one page
+- Add the ability to print double sided for transparent cases
+
+## Bugs
+- Text on cover select dropdown gets cut in half after first selection
 
 ## Improve
 - Add support for bmp (maybe)
-- Remove Flixel from project. This only really needs Lime
