@@ -3,7 +3,6 @@
 - Add the ability to print double sided for transparent cases
 
 ## Bugs
-- Text on cover select dropdown gets cut in half after first selection
 
 ## Improve
 - Add support for bmp (maybe)

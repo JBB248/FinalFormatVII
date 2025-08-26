@@ -1,12 +1,15 @@
 package components;
 
 import haxe.ui.backend.flixel.UIState;
+// import haxe.ui.components.DropDown;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.containers.dialogs.Dialogs;
 import haxe.ui.containers.dialogs.MessageBox;
 import haxe.ui.containers.dialogs.OpenFileDialog;
 import haxe.ui.containers.dialogs.SaveFileDialog;
 import haxe.ui.events.MouseEvent;
+import haxe.ui.events.UIEvent;
+// import haxe.ui.validation.InvalidationFlags;
 
 import openfl.Lib;
 import openfl.display.Bitmap;
@@ -54,7 +57,7 @@ class MainView extends UIState
     {
         if(event.button != DialogButton.OK) return;
 
-        var dpi = -1;
+        var dpi = 72;
         var bytes = dialog.selectedFiles[0].bytes;
         var path = dialog.selectedFiles[0].fullPath.toLowerCase();
         try
@@ -73,7 +76,6 @@ class MainView extends UIState
         catch(error)
         {
             UserLog.addWarning(error.message);
-            dpi = 72;
         }
 
         // Make sure we don't clog memory
@@ -97,6 +99,20 @@ class MainView extends UIState
     @:bind(launchButton, MouseEvent.CLICK)
     function onFindCoversButtonPressed(_):Void
         Lib.getURL(new URLRequest("https://www.thecoverproject.net/"), "_blank");
+
+    @:bind(outputCoverType, UIEvent.CHANGE)
+    function outputCoverTypeClosed(_):Void
+    {
+        // This is how you would access the dropdown's list. Horrible
+        // @:privateAccess var listview = cast(outputCoverType._compositeBuilder, DropDownBuilder).handler.component;
+        
+        // FORCE the dropdown to redraw itself so that the stupid text doesn't get cut off in the middle
+        // This is because in Dropdown.ListDropDownHandler.prepare, 
+        // it sets the listview's "width" instead of componentWidth, which doesn't flag it to be redrawn
+        // I'd like to just flag the listview as invalid layout, but that doesn't seem to do anything
+        // This will work even though it's stupid
+        outputCoverType.dropdownWidth = outputCoverType.dropdownWidth == 100 ? 105 : 100;
+    }
 
     @:bind(exportButton, MouseEvent.CLICK)
     function onExportButtonPressed(_):Void
