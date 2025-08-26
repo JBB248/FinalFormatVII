@@ -14,11 +14,11 @@
         <hbox width="100%">
             <grid columns="2">
                 <label width="90px" text="Cover type:" verticalAlign="center"/>
-                <dropdown id="output-cover-type" width="140px" dropdownSize="6" searchable="true" searchPrompt="Find Cover">
+                <dropdown id="output-cover-type" dropdownSize="6" searchable="true" searchPrompt="Find Cover">
                     <data>
                         <item text="PS1 (Front)"/>
                         <item text="PS1 (Back)"/>
-                        <item text="PS1 (Rear Inlay)"/>
+                        <item text="PS1 (Inlay)"/>
                         <item text="PS1 Mulit-disk"/>
                         <item text="PS2"/>
                         <item text="PS3"/>

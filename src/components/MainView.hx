@@ -30,7 +30,10 @@ class MainView extends UIState
         add(new flixel.addons.display.FlxBackdrop(new DebugSquare(0, 0)));
 
         super.create();
+	}
 
+    override function onReady():Void
+    {
         dialog = new OpenFileDialog();
         dialog.onDialogClosed = loadCoverArt;
         dialog.options = {
@@ -40,9 +43,7 @@ class MainView extends UIState
             extensions: [{label: "Image Files", extension: "png, jpeg, jpg"}],
             title: "Select Cover Art"
         };
-
-        trace(outputCoverType.actualComponentWidth);
-	}
+    }
 
 	override public function update(elapsed:Float):Void
 	{

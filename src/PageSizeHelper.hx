@@ -4,43 +4,84 @@ class PageSizeHelper
     {
         return switch(type)
         {
-            case "CD (Front)" | "PS1 (Front)":
-                {width: CoverDimensions.CDFRONTX, height: CoverDimensions.CDFRONTX}
+            case CDFRONT | PS1FRONT:
+                {width: CDFRONTX, height: CDFRONTX}
 
-            case "CD (Back)" | "CD (Inlay)" | "PS1 (Back)" | "PS1 (Inlay)":
-                {width: CoverDimensions.CDBACKX, height: CoverDimensions.CDBACKY}
+            case CDBACK | CDINLAY | PS1BACK | PS1INLAY:
+                {width: CDBACKX, height: CDBACKY}
 
-            case "CD Mulit-disk" | "PS1 Mulit-disk":
-                {width: CoverDimensions.MULITCDX, height: CoverDimensions.MULITCDY}
+            case CDMULITDISK | PS1MULTIDISK:
+                {width: MULITCDX, height: MULITCDY}
 
-            case "DVD" | "GameCube" | "Wii" | "WiiU" | "PS2" | "XBox" | "XBox 360":
-                {width: CoverDimensions.DVDX, height: CoverDimensions.DVDY}
+            case DVD| GAMECUBE | WII | WIIU | PS2 | XBOX | XBOX360:
+                {width: DVDX, height: DVDY}
 
-            case "DVD SLIM" | "Switch" | "Switch 2":
-                {width: CoverDimensions.DVDSLIMX, height: CoverDimensions.DVDSLIMY}
+            case DVDSLIM | SWITCH | SWITCH2:
+                {width: DVDSLIMX, height: DVDSLIMY}
 
-            case "BLURAY" | "PS3":
-                {width: CoverDimensions.BLURAYX, height: CoverDimensions.BLURAYY}
+            case BLURAY | PS3:
+                {width: BLURAYX, height: BLURAYY}
 
-            case "BLURAY SLIM" | "XBox One" | "XBox Series X":
-                {width: CoverDimensions.BLURAYSLIMX, height: CoverDimensions.BLURAYSLIMY}
+            case BLURAYSLIM | XBOXONE | XBOXSERIESX:
+                {width: BLURAYSLIMX, height: BLURAYSLIMY}
 
-            case "PS4" | "PS5":
-                {width: CoverDimensions.BLURAYPS4X, height: CoverDimensions.BLURAYPS4Y}
+            case PS4 | PS5:
+                {width: BLURAYPS4X, height: BLURAYPS4Y}
 
-            case "A4 (11.7x8.3in)":
-                {width: CoverDimensions.A4X, height: CoverDimensions.A4Y}
+            case A4:
+                {width: A4X, height: A4Y}
 
-            case "B4 (13.9x9.8in)":
-                {width: CoverDimensions.B4X, height: CoverDimensions.B4Y}
+            case B4:
+                {width: B4X, height: B4Y}
 
             default:
                 {width: -1, height: -1}
         };
     }
+
+    public static function boxArtHasReverseSide(cover:String):Bool
+    {
+        final validCovers:Array<String> = [PS1BACK, PS3, PS4, PS5, SWITCH, SWITCH2, BLURAY, BLURAYSLIM, CDBACK];
+        return validCovers.contains(cover);
+    }
 }
 
-enum abstract CoverDimensions(Float) to Float
+private enum abstract BoxArtCovers(String) to String
+{
+    var PS1FRONT = "PS1 (Front)";
+    var PS1BACK = "PS1 (Back)";
+    var PS1INLAY = "PS1 (Inlay)";
+    var PS1MULTIDISK = "PS1 Mulit-disk";
+    var PS2 = "PS2";
+    var PS3 = "PS3";
+    var PS4 = "PS4";
+    var PS5 = "PS5";
+    
+    var XBOX = "XBox";
+    var XBOX360 = "XBox 360";
+    var XBOXONE = "XBox One";
+    var XBOXSERIESX = "XBox Series X";
+    
+    var GAMECUBE = "GameCube";
+    var WII = "Wii";
+    var WIIU = "WiiU";
+    var SWITCH = "Switch";
+    var SWITCH2 = "Switch 2";
+    
+    var BLURAY = "BLURAY";
+    var BLURAYSLIM = "BLURAY SLIM";
+    var CDFRONT = "CD (Front)";
+    var CDBACK = "CD (Back)";
+    var CDINLAY = "CD (Inlay)";
+    var CDMULITDISK = "CD Mulit-disk";
+    var DVD = "DVD";
+    var DVDSLIM = "DVD SLIM";
+
+    var A4 = "A4 (11.7x8.3in)";
+    var B4 = "B4 (13.9x9.8in)"; 
+}
+
+private enum abstract CoverDimensions(Float) to Float
 {
     var CDFRONTX = 4.74; // CD Jewel Front, PS1 Front
     var CDFRONTY = 4.67;
