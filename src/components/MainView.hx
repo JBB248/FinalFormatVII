@@ -92,7 +92,7 @@ class MainView extends UIState
         exportButton.disabled = false;
     }
 
-    @:bind(loadButton, MouseEvent.CLICK)
+    @:bind(imageNameLabel, MouseEvent.CLICK)
     function onLoadButtonPressed(_):Void
         dialog.show();
 
@@ -107,11 +107,9 @@ class MainView extends UIState
         // @:privateAccess var listview = cast(outputCoverType._compositeBuilder, DropDownBuilder).handler.component;
         
         // FORCE the dropdown to redraw itself so that the stupid text doesn't get cut off in the middle
-        // This is because in Dropdown.ListDropDownHandler.prepare, 
-        // it sets the listview's "width" instead of componentWidth, which doesn't flag it to be redrawn
         // I'd like to just flag the listview as invalid layout, but that doesn't seem to do anything
         // This will work even though it's stupid
-        outputCoverType.dropdownWidth = outputCoverType.dropdownWidth == 100 ? 105 : 100;
+        // outputCoverType.dropdownWidth = outputCoverType.dropdownWidth == 100 ? 105 : 100;
     }
 
     @:bind(exportButton, MouseEvent.CLICK)

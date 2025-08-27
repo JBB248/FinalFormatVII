@@ -1,15 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vbox width="100%" height="100%" style="background-color: $default-background-color; background-opacity: 0.92;">
+    <style>
+        .searchLink {
+            background: none;
+            border: none;
+            color: $accent-color;
+            padding: 0px;
+        }
+
+        .searchLink:hover {
+            color: white;
+        }
+    </style>
     <vbox width="100%" style="padding: 5px;">
         <hbox width="100%">
-            <button id="load-button" text="Select Cover Art"/>
+            <vbox>
+                <hbox>
+                    <label text="Image:" verticalAlign="center"/>
+                    <button id="image-name-label" styleName="searchLink" text="[Select Cover Art]" verticalAlign="center"/>
+                </hbox>
+            </vbox>
             <vbox width="100%">
                 <button id="launch-button" text="Find Game Covers" horizontalAlign="right"/>
             </vbox>
-        </hbox>
-        <hbox>
-            <label text="Image:" verticalAlign="center"/>
-            <label id="image-name-label" verticalAlign="center"/>
         </hbox>
         <hbox width="100%">
             <grid columns="2">
