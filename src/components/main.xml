@@ -11,21 +11,25 @@
         .searchLink:hover {
             color: white;
         }
+
+        .searchLink:disabled {
+            color: grey;
+        }
     </style>
     <vbox width="100%" style="padding: 5px;">
         <hbox width="100%">
             <vbox>
                 <hbox>
-                    <label text="Image:" verticalAlign="center"/>
+                    <label text="Front Image:" verticalAlign="center"/>
                     <button id="image-path-button" styleName="searchLink" text="[Select Box Art]" verticalAlign="center"/>
                 </hbox>
                 <hbox>
-                    <label text="Image:" verticalAlign="center"/>
-                    <button id="image-flip-path-button" styleName="searchLink" text="[Select Inside Box Art]" verticalAlign="center"/>
+                    <label text="Back Image:" verticalAlign="center"/>
+                    <button id="image-flip-path-button" styleName="searchLink" text="[Select Inside Box Art]" verticalAlign="center" disabled="true"/>
                 </hbox>
             </vbox>
             <vbox width="100%">
-                <button id="launch-button" text="Find Game Covers" horizontalAlign="right"/>
+                <button id="launch-button" text="Find Box Art" horizontalAlign="right"/>
             </vbox>
         </hbox>
         <hbox width="100%">

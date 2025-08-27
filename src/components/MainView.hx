@@ -1,7 +1,6 @@
 package components;
 
 import haxe.ui.backend.flixel.UIState;
-// import haxe.ui.components.DropDown;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.containers.dialogs.Dialogs;
 import haxe.ui.containers.dialogs.MessageBox;
@@ -9,7 +8,6 @@ import haxe.ui.containers.dialogs.OpenFileDialog;
 import haxe.ui.containers.dialogs.SaveFileDialog;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.events.UIEvent;
-// import haxe.ui.validation.InvalidationFlags;
 
 import openfl.Lib;
 import openfl.display.Bitmap;
@@ -17,6 +15,8 @@ import openfl.display.BitmapData;
 import openfl.display.PNGEncoderOptions;
 import openfl.geom.Matrix;
 import openfl.net.URLRequest;
+
+import sys.io.File;
 
 using StringTools;
 
@@ -35,10 +35,8 @@ class MainView extends UIState
 
     override function onReady():Void
     {
-        var openDialog = (_) -> 
-            Dialogs.openBinaryFile("Select Box Art", [{label: "Image Files", extension: "png, jpeg, jpg"}], loadCoverArt);
-        imagePathButton.registerEvent(MouseEvent.CLICK, openDialog);
-        imageFlipPathButton.registerEvent(MouseEvent.CLICK, openDialog);
+        imagePathButton.registerEvent(MouseEvent.CLICK, loadFrontBoxArt);
+        imageFlipPathButton.registerEvent(MouseEvent.CLICK, loadBackBoxArt);
     }
 
 	override public function update(elapsed:Float):Void
@@ -46,10 +44,48 @@ class MainView extends UIState
 		super.update(elapsed);
 	}
 
-    function loadCoverArt(fileInfo:SelectedFileInfo):Void
+    function loadFrontBoxArt(_):Void
+    {
+        openFileSelectDialog(function(button:DialogButton, selectedFiles:Array<SelectedFileInfo>)
+        {
+            if(button != DialogButton.OK) return;
+
+            var fileInfo = selectedFiles[0];
+            imagePathButton.text = '<font color="#1E8BF0">${fileInfo.name}</font>';
+            imagePathButton.tooltip = fileInfo.fullPath;
+
+            displaySelectedFileInfo(fileInfo);
+
+            exportButton.disabled = false;
+        });
+    }
+
+    function loadBackBoxArt(_):Void
+    {
+        openFileSelectDialog(function(button:DialogButton, selectedFiles:Array<SelectedFileInfo>)
+        {
+            if(button != DialogButton.OK) return;
+
+            var fileInfo = selectedFiles[0];
+            imageFlipPathButton.text = '<font color="#1E8BF0">${fileInfo.name}</font>';
+            imageFlipPathButton.tooltip = fileInfo.fullPath;
+
+            displaySelectedFileInfo(fileInfo);
+        });
+    }
+
+    function openFileSelectDialog(callback:(DialogButton, Array<SelectedFileInfo>) -> Void):Void
+    {
+        new OpenFileDialog({
+            readContents: false,
+            multiple: false,
+            extensions: [{label: "Image Files", extension: "png, jpeg, jpg"}]}, callback).show();
+    }
+
+    function displaySelectedFileInfo(fileInfo:SelectedFileInfo):Void
     {
         var dpi = 72;
-        var bytes = fileInfo.bytes;
+        var bytes = File.getBytes(fileInfo.fullPath);
         var path = fileInfo.fullPath.toLowerCase();
         try
         {
@@ -69,18 +105,18 @@ class MainView extends UIState
             UserLog.addWarning(error.message);
         }
 
+        exportButton.disabled = false;
+
         // Make sure we don't clog memory
         if(coverBitmap != null)
             coverBitmap.dispose();
 
         coverBitmap = BitmapData.fromBytes(bytes);
         coverBitmapName = fileInfo.name;
-        imagePathButton.text = '<font color="#1E8BF0">${fileInfo.name}</font>';
-        imagePathButton.tooltip = fileInfo.fullPath;
         UserLog.addMessage(
-            'Successfully loaded <font color="#1E8BF0">${coverBitmap.width}x${coverBitmap.height}</font> px image with a resolution of <font color="#1E8BF0">${dpi}</font> DPI');
-
-        exportButton.disabled = false;
+            'Successfully loaded <font color="#1E8BF0">' + 
+            coverBitmap.width + 'x' + coverBitmap.height + 
+            '</font> px image with a resolution of <font color="#1E8BF0">' + dpi + '</font> DPI');
     }
 
     @:bind(launchButton, MouseEvent.CLICK)
