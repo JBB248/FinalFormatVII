@@ -23,8 +23,6 @@ using StringTools;
 @:build(haxe.ui.ComponentBuilder.build("src/components/main.xml"))
 class MainView extends UIState
 {
-    var dialog:OpenFileDialog;
-
     var coverBitmap:BitmapData;
     var coverBitmapName:String;
 
@@ -37,15 +35,10 @@ class MainView extends UIState
 
     override function onReady():Void
     {
-        dialog = new OpenFileDialog();
-        dialog.onDialogClosed = loadCoverArt;
-        dialog.options = {
-            readContents: true,
-            readAsBinary: true,
-            multiple: false,
-            extensions: [{label: "Image Files", extension: "png, jpeg, jpg"}],
-            title: "Select Cover Art"
-        };
+        var openDialog = (_) -> 
+            Dialogs.openBinaryFile("Select Box Art", [{label: "Image Files", extension: "png, jpeg, jpg"}], loadCoverArt);
+        imagePathButton.registerEvent(MouseEvent.CLICK, openDialog);
+        imageFlipPathButton.registerEvent(MouseEvent.CLICK, openDialog);
     }
 
 	override public function update(elapsed:Float):Void
@@ -53,13 +46,11 @@ class MainView extends UIState
 		super.update(elapsed);
 	}
 
-    function loadCoverArt(event:DialogEvent):Void
+    function loadCoverArt(fileInfo:SelectedFileInfo):Void
     {
-        if(event.button != DialogButton.OK) return;
-
         var dpi = 72;
-        var bytes = dialog.selectedFiles[0].bytes;
-        var path = dialog.selectedFiles[0].fullPath.toLowerCase();
+        var bytes = fileInfo.bytes;
+        var path = fileInfo.fullPath.toLowerCase();
         try
         {
             if(path.endsWith("png"))
@@ -83,18 +74,14 @@ class MainView extends UIState
             coverBitmap.dispose();
 
         coverBitmap = BitmapData.fromBytes(bytes);
-        coverBitmapName = dialog.selectedFiles[0].name;
-        imageNameLabel.text = '<font color="#1E8BF0">${dialog.selectedFiles[0].name}</font>';
-        imageNameLabel.tooltip = dialog.selectedFiles[0].fullPath;
+        coverBitmapName = fileInfo.name;
+        imagePathButton.text = '<font color="#1E8BF0">${fileInfo.name}</font>';
+        imagePathButton.tooltip = fileInfo.fullPath;
         UserLog.addMessage(
             'Successfully loaded <font color="#1E8BF0">${coverBitmap.width}x${coverBitmap.height}</font> px image with a resolution of <font color="#1E8BF0">${dpi}</font> DPI');
 
         exportButton.disabled = false;
     }
-
-    @:bind(imageNameLabel, MouseEvent.CLICK)
-    function onLoadButtonPressed(_):Void
-        dialog.show();
 
     @:bind(launchButton, MouseEvent.CLICK)
     function onFindCoversButtonPressed(_):Void
@@ -109,7 +96,7 @@ class MainView extends UIState
         // FORCE the dropdown to redraw itself so that the stupid text doesn't get cut off in the middle
         // I'd like to just flag the listview as invalid layout, but that doesn't seem to do anything
         // This will work even though it's stupid
-        // outputCoverType.dropdownWidth = outputCoverType.dropdownWidth == 100 ? 105 : 100;
+        outputCoverType.dropdownWidth = outputCoverType.dropdownWidth == 100 ? 105 : 100;
     }
 
     @:bind(exportButton, MouseEvent.CLICK)

@@ -17,7 +17,11 @@
             <vbox>
                 <hbox>
                     <label text="Image:" verticalAlign="center"/>
-                    <button id="image-name-label" styleName="searchLink" text="[Select Cover Art]" verticalAlign="center"/>
+                    <button id="image-path-button" styleName="searchLink" text="[Select Box Art]" verticalAlign="center"/>
+                </hbox>
+                <hbox>
+                    <label text="Image:" verticalAlign="center"/>
+                    <button id="image-flip-path-button" styleName="searchLink" text="[Select Inside Box Art]" verticalAlign="center"/>
                 </hbox>
             </vbox>
             <vbox width="100%">
