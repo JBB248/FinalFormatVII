@@ -13,7 +13,9 @@ import openfl.Lib;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.PNGEncoderOptions;
+import openfl.display.StageQuality;
 import openfl.geom.Matrix;
+import openfl.geom.Rectangle;
 import openfl.net.URLRequest;
 
 using StringTools;
@@ -145,14 +147,11 @@ class MainView extends UIState
         final digitalCoverWidth = Math.ceil(realCoverSize.width * dpi);
         final digitalCoverHeight = Math.ceil(realCoverSize.height * dpi);
 
-        var stretchBitmap = new Bitmap(coverBitmap);
-        stretchBitmap.width = digitalCoverWidth;
-        stretchBitmap.height = digitalCoverHeight;
-
-        final offsetX = (digitalPageWidth - digitalCoverWidth) / 2;
-        final offsetY = (digitalPageHeight - digitalCoverHeight) / 2;
-
-        exBitmapData.draw(stretchBitmap, new Matrix(1, 0, 0, 1, offsetX, offsetY));
+        var matrix = new Matrix();
+        matrix.scale(digitalCoverWidth / coverBitmap.rect.width, digitalCoverHeight / coverBitmap.rect.height);
+        matrix.translate((digitalPageWidth - digitalCoverWidth) / 2, (digitalPageHeight - digitalCoverHeight) / 2);
+        exBitmapData.drawWithQuality(coverBitmap, matrix, null, null, null, true, StageQuality.BEST);
+        exBitmapData.fillRect(new Rectangle((digitalPageWidth - digitalCoverWidth ) / 2 - 5, 0, 5, exBitmapData.height), 0xFF000000);
 
         var bytes = ImageResolutionHelper.writeDPIToPNG(exBitmapData.encode(exBitmapData.rect, new PNGEncoderOptions()), dpi);
         var dialog = new SaveFileDialog();
