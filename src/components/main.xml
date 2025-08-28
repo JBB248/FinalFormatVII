@@ -18,16 +18,10 @@
     </style>
     <vbox width="100%" style="padding: 5px;">
         <hbox width="100%">
-            <vbox>
-                <hbox>
-                    <label text="Front Image:" verticalAlign="center"/>
-                    <button id="image-path-button" styleName="searchLink" text="[Select Box Art]" verticalAlign="center"/>
-                </hbox>
-                <hbox>
-                    <label text="Back Image:" verticalAlign="center"/>
-                    <button id="image-flip-path-button" styleName="searchLink" text="[Select Inside Box Art]" verticalAlign="center"/>
-                </hbox>
-            </vbox>
+            <hbox verticalAlign="center">
+                <label text="Front Image:" verticalAlign="center"/>
+                <button id="image-path-button" styleName="searchLink" text="[Select Box Art]" verticalAlign="center"/>
+            </hbox>
             <vbox width="100%">
                 <button id="launch-button" text="Find Box Art" horizontalAlign="right"/>
             </vbox>

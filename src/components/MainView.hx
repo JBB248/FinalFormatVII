@@ -16,8 +16,6 @@ import openfl.display.PNGEncoderOptions;
 import openfl.geom.Matrix;
 import openfl.net.URLRequest;
 
-import sys.io.File;
-
 using StringTools;
 
 @:build(haxe.ui.ComponentBuilder.build("src/components/main.xml"))
@@ -36,7 +34,6 @@ class MainView extends UIState
     override function onReady():Void
     {
         imagePathButton.registerEvent(MouseEvent.CLICK, loadFrontBoxArt);
-        imageFlipPathButton.registerEvent(MouseEvent.CLICK, loadBackBoxArt);
     }
 
 	override public function update(elapsed:Float):Void
@@ -55,7 +52,7 @@ class MainView extends UIState
                 fileInfo.name = "..." + fileInfo.name.substring(fileInfo.name.length - 25, fileInfo.name.length);
 
             imagePathButton.text = '<font color="#1E8BF0">${fileInfo.name}</font>';
-            imagePathButton.tooltip = fileInfo.fullPath;
+            imagePathButton.userData = {path: fileInfo.fullPath};
 
             displaySelectedFileInfo(fileInfo);
 
@@ -63,27 +60,11 @@ class MainView extends UIState
         });
     }
 
-    function loadBackBoxArt(_):Void
-    {
-        openFileSelectDialog(function(button:DialogButton, selectedFiles:Array<SelectedFileInfo>)
-        {
-            if(button != DialogButton.OK) return;
-
-            var fileInfo = selectedFiles[0];
-            if(fileInfo.name.length > 25)
-                fileInfo.name = "..." + fileInfo.name.substring(fileInfo.name.length - 25, fileInfo.name.length);
-
-            imageFlipPathButton.text = '<font color="#1E8BF0">${fileInfo.name}</font>';
-            imageFlipPathButton.tooltip = fileInfo.fullPath;
-
-            displaySelectedFileInfo(fileInfo);
-        });
-    }
-
     function openFileSelectDialog(callback:(DialogButton, Array<SelectedFileInfo>) -> Void):Void
     {
         new OpenFileDialog({
-            readContents: false,
+            readContents: true,
+            readAsBinary: true,
             multiple: false,
             extensions: [{label: "Image Files", extension: "png, jpeg, jpg"}]}, callback).show();
     }
@@ -91,7 +72,7 @@ class MainView extends UIState
     function displaySelectedFileInfo(fileInfo:SelectedFileInfo):Void
     {
         var dpi = 72;
-        var bytes = File.getBytes(fileInfo.fullPath);
+        var bytes = fileInfo.bytes;
         var path = fileInfo.fullPath.toLowerCase();
         try
         {
