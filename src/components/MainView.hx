@@ -51,6 +51,9 @@ class MainView extends UIState
             if(button != DialogButton.OK) return;
 
             var fileInfo = selectedFiles[0];
+            if(fileInfo.name.length > 25)
+                fileInfo.name = "..." + fileInfo.name.substring(fileInfo.name.length - 25, fileInfo.name.length);
+
             imagePathButton.text = '<font color="#1E8BF0">${fileInfo.name}</font>';
             imagePathButton.tooltip = fileInfo.fullPath;
 
@@ -67,6 +70,9 @@ class MainView extends UIState
             if(button != DialogButton.OK) return;
 
             var fileInfo = selectedFiles[0];
+            if(fileInfo.name.length > 25)
+                fileInfo.name = "..." + fileInfo.name.substring(fileInfo.name.length - 25, fileInfo.name.length);
+
             imageFlipPathButton.text = '<font color="#1E8BF0">${fileInfo.name}</font>';
             imageFlipPathButton.tooltip = fileInfo.fullPath;
 

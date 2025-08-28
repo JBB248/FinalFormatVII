@@ -38,12 +38,6 @@ class PageSizeHelper
                 {width: -1, height: -1}
         };
     }
-
-    public static function boxArtHasReverseSide(cover:String):Bool
-    {
-        final validCovers:Array<String> = [PS1BACK, PS3, PS4, PS5, SWITCH, SWITCH2, BLURAY, BLURAYSLIM, CDBACK];
-        return validCovers.contains(cover);
-    }
 }
 
 private enum abstract BoxArtCovers(String) to String
