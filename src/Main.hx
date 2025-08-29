@@ -7,7 +7,7 @@ import haxe.ui.Toolkit;
 
 class Main extends openfl.display.Sprite
 {
-    var initialState:InitialState = PlayState.new;
+    var initialState:InitialState = components.MainView.new;
 
 	public function new()
 	{
@@ -15,7 +15,9 @@ class Main extends openfl.display.Sprite
 
         initHaxeUI();
 
-		addChild(new FlxGame(0, 0, PlayState));
+		addChild(new FlxGame(0, 0, initialState));
+
+        flixel.FlxG.mouse.useSystemCursor = true;
 	}
 
     function initHaxeUI():Void

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vbox width="100%" height="100%" style="background-color: $default-background-color; background-opacity: 0.92;">
+    <style>
+        .searchLink {
+            background: none;
+            border: none;
+            color: $accent-color;
+            padding: 0px;
+        }
+
+        .searchLink:hover {
+            color: white;
+        }
+
+        .searchLink:disabled {
+            color: grey;
+        }
+    </style>
+    <vbox width="100%" style="padding: 5px;">
+        <hbox width="100%">
+            <hbox verticalAlign="center">
+                <label text="Front Image:" verticalAlign="center"/>
+                <button id="image-path-button" styleName="searchLink" text="[Select Box Art]" verticalAlign="center"/>
+            </hbox>
+            <vbox width="100%">
+                <button id="launch-button" text="Find Box Art" horizontalAlign="right"/>
+            </vbox>
+        </hbox>
+        <hbox width="100%">
+            <grid columns="2">
+                <label width="90px" text="Cover type:" verticalAlign="center"/>
+                <dropdown id="output-cover-type" dropdownWidth="100px" dropdownSize="6" searchable="true" searchPrompt="Find Cover">
+                    <data>
+                        <item text="PS1 (Front)"/>
+                        <item text="PS1 (Back)"/>
+                        <item text="PS1 (Inlay)"/>
+                        <item text="PS1 Mulit-disk"/>
+                        <item text="PS2"/>
+                        <item text="PS3"/>
+                        <item text="PS4"/>
+                        <item text="PS5"/>
+                        <item text="XBox"/>
+                        <item text="XBox 360"/>
+                        <item text="XBox One"/>
+                        <item text="XBox Series X"/>
+                        <item text="GameCube"/>
+                        <item text="Wii"/>
+                        <item text="WiiU"/>
+                        <item text="Switch"/>
+                        <item text="Switch 2"/>
+                        <item text="BLURAY"/>
+                        <item text="BLURAY SLIM"/>
+                        <item text="CD (Front)"/>
+                        <item text="CD (Back)"/>
+                        <item text="CD (Inlay)"/>
+                        <item text="CD Mulit-disk"/>
+                        <item text="DVD"/>
+                        <item text="DVD SLIM"/>
+                    </data>
+                </dropdown>
+                <label width= "90px" text="Page Output Size:" verticalAlign="center"/>
+                <dropdown id="output-page-type">
+                    <data>
+                        <item text="A4 (11.7x8.3in)"/>
+                        <item text="B4 (13.9x9.8in)"/>
+                    </data>
+                </dropdown>
+                <label width="90px" text="Output DPI:" verticalAlign="center"/>
+                <text-field id="output-dpi" width="50px" restrictChars="0-9" maxChars="3" text="300"/>
+            </grid>
+            <vbox width="100%" height="100%">
+                <checkbox id="stretch-checker" text="Stretch to Fit?" width="100%"/>
+                <checkbox id="guides-checker" text="Output With Cutting Guides?" width="100%" selected="true"/>
+                <hbox height="100%" horizontalAlign="right">
+                    <button id="export-button" text="Export" verticalAlign="bottom" disabled="true"/>
+                </hbox>
+            </vbox>
+        </hbox>
+    </vbox>
+    <vbox width="100%" height="100%" style="background-color: $default-background-color; padding: 5px;">
+        <section-header text="Log:"/>
+        <user-log width="100%" height="100%" scrollMode="native" horizontalScrollPolicy="never"/>
+    </vbox>
+</vbox>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<module id="talistwins">
+<module id="final-format-vii">
     <resources>
         <resource path="/burst/ui/_module/styles" prefix="burst/styles"/>
     </resources>
 
     <components>
-        <component package="debug.sprite.components"/>
+        <component package="components"/>
     </components>
 
     <themes>
@@ -33,9 +33,7 @@
             <var name="solid-background-color" value="#05070A"/>
             <var name="solid-background-color-down" value="#141619"/>
 
-            <style resource="burst/styles/containers.css"/>
-            <style resource="burst/styles/menus.css"/>
-            <style resource="burst/styles/tabs.css"/>
+            <style resource="styles/containers.css"/>
         </dark-compact>
     </themes>
 </module>
