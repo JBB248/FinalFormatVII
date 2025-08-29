@@ -28,11 +28,11 @@
 
 	<source path="src"/>
 
+    <!-- Distributed testing build -->
+	<set name="BUILD_DIR" value="export/beta"/>
+
 	<!-- Release build -->
 	<set name="BUILD_DIR" value="export/alpha" if="final"/>
-
-	<!-- Distributed testing build -->
-	<set name="BUILD_DIR" value="export/beta"/>
 
 	<!-- Development build -->
 	<set name="BUILD_DIR" value="export/beta-debug" if="debug"/>

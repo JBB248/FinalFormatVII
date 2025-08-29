@@ -72,16 +72,5 @@
 			"arguments": ["-v"]
 		},
 
-		"lime.targetConfigurations": [
-			{
-				"label": "Windows / Debug",
-				"target": "windows",
-				"args": ["-debug", ""]
-			},
-            {
-				"label": "Hashlink / Debug",
-				"target": "hl",
-				"args": ["-debug", ""]
-			}
-		]
+		"lime.targetConfigurations": []
 }

@@ -33,9 +33,7 @@
             <var name="solid-background-color" value="#05070A"/>
             <var name="solid-background-color-down" value="#141619"/>
 
-            <style resource="burst/styles/containers.css"/>
-            <style resource="burst/styles/menus.css"/>
-            <style resource="burst/styles/tabs.css"/>
+            <style resource="styles/containers.css"/>
         </dark-compact>
     </themes>
 </module>

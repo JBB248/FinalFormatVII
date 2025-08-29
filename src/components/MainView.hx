@@ -10,7 +10,6 @@ import haxe.ui.events.MouseEvent;
 import haxe.ui.events.UIEvent;
 
 import openfl.Lib;
-import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.PNGEncoderOptions;
 import openfl.display.StageQuality;
