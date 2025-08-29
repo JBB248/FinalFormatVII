@@ -114,7 +114,7 @@ class MainView extends UIState
     {
         if(coverBitmap == null) return;
 
-        var expectedCoverSize = PageSizeHelper.getDimensionsFromString(outputCoverType.selectedItem.text);
+        var expectedCoverSize = (cast outputCoverType.selectedItem.text: BoxArt).getDimensions();
         final dpi = Std.parseInt(outputDpi.text);
 
         if(Math.abs(expectedCoverSize.width - coverBitmap.width / dpi) > 0.125 || Math.abs(expectedCoverSize.height - coverBitmap.height / dpi) > 0.125)
@@ -126,7 +126,7 @@ class MainView extends UIState
             UserLog.addWarning("Both of these options may lead to a more blurred output");
         }
         else
-            UserLog.addMessage("Selected box art FITS in target box!");
+            UserLog.addMessage('Selected box art <font color="#1E8BF0">fits</font> in target box!');
 
         UserLog.addDivider();
     }
@@ -139,7 +139,7 @@ class MainView extends UIState
     function outputCoverTypeChanged(_):Void
     {
         // This is how you would access the dropdown's list. Horrible
-        // @:privateAccess var listview = cast(outputCoverType._compositeBuilder, DropDownBuilder).handler.component;
+        // @:privateAccess var listview = (cast outputCoverType._compositeBuilder: DropDownBuilder).handler.component;
         
         // FORCE the dropdown to redraw itself so that the stupid text doesn't get cut off in the middle
         // I'd like to just flag the listview as invalid layout, but that doesn't seem to do anything
@@ -155,7 +155,7 @@ class MainView extends UIState
         if(coverBitmap == null)
             return UserLog.addError("No"); // For now
 
-        var realPageSize = PageSizeHelper.getDimensionsFromString(outputPageType.selectedItem.text);
+        var realPageSize = (cast outputPageType.selectedItem.text: BoxArt).getDimensions();
         if(realPageSize.width < 1 || realPageSize.height < 1)
             return UserLog.addError("The selected page size has no internal data");
 
@@ -165,7 +165,7 @@ class MainView extends UIState
 
         var exportBitmapData = new BitmapData(digitalPageWidth, digitalPageHeight, false);
 
-        var realCoverSize = PageSizeHelper.getDimensionsFromString(outputCoverType.selectedItem.text);
+        var realCoverSize = (cast outputCoverType.selectedItem.text: BoxArt).getDimensions();
         if(realCoverSize.width < 1 || realCoverSize.height < 1)
             return UserLog.addError("The selected cover size has no internal data");
 
@@ -191,10 +191,7 @@ class MainView extends UIState
         }
 
         var bytes = ImageResolutionHelper.writeDPIToPNG(exportBitmapData.encode(exportBitmapData.rect, new PNGEncoderOptions()), dpi);
-        var dialog = new SaveFileDialog({
-                title: "Save Formatted Cover Art",
-                writeAsBinary: true
-            }, 
+        var dialog = new SaveFileDialog({writeAsBinary: true}, 
             (button, result, fullPath) -> {
                 if(button != DialogButton.OK) return;
                 exportBitmapData.dispose(); // Get rid of the export bitmap in memory
