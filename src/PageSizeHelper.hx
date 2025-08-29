@@ -89,8 +89,8 @@ private enum abstract CoverDimensions(Float) to Float
     var DVDX = 10.75; // GameCube, Wii, WiiU, PS1 DVD, PS2, Xbox, Xbox360
     var DVDY = 7.25;
 
-    var DVDSLIMX = 10.47; // Switch 1 & 2
-    var DVDSLIMY = 7.2;
+    var DVDSLIMX = 8.24; // Switch 1 & 2
+    var DVDSLIMY = 6.34;
 
     var BLURAYX = 10.7; // PS3
     var BLURAYY = 5.81;

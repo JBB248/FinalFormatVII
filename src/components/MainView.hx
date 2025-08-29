@@ -3,9 +3,9 @@ package components;
 import haxe.ui.backend.flixel.UIState;
 import haxe.ui.containers.dialogs.Dialog;
 import haxe.ui.containers.dialogs.Dialogs;
-import haxe.ui.containers.dialogs.MessageBox;
 import haxe.ui.containers.dialogs.OpenFileDialog;
 import haxe.ui.containers.dialogs.SaveFileDialog;
+import haxe.ui.events.FocusEvent;
 import haxe.ui.events.MouseEvent;
 import haxe.ui.events.UIEvent;
 
@@ -24,7 +24,6 @@ using StringTools;
 class MainView extends UIState
 {
     var coverBitmap:BitmapData;
-    var coverBitmapName:String;
 
 	override public function create():Void
 	{
@@ -36,6 +35,7 @@ class MainView extends UIState
     override function onReady():Void
     {
         imagePathButton.registerEvent(MouseEvent.CLICK, loadFrontBoxArt);
+        outputDpi.registerEvent(FocusEvent.FOCUS_OUT, (_) -> checkBoxArtSize());
     }
 
 	override public function update(elapsed:Float):Void
@@ -101,11 +101,34 @@ class MainView extends UIState
             coverBitmap.dispose();
 
         coverBitmap = BitmapData.fromBytes(bytes);
-        coverBitmapName = fileInfo.name;
         UserLog.addMessage(
             'Successfully loaded <font color="#1E8BF0">' + 
             coverBitmap.width + 'x' + coverBitmap.height + 
             '</font> px image with a resolution of <font color="#1E8BF0">' + dpi + '</font> DPI');
+        UserLog.addDivider();
+
+        checkBoxArtSize();
+    }
+
+    function checkBoxArtSize():Void
+    {
+        if(coverBitmap == null) return;
+
+        var expectedCoverSize = PageSizeHelper.getDimensionsFromString(outputCoverType.selectedItem.text);
+        final dpi = Std.parseInt(outputDpi.text);
+
+        if(Math.abs(expectedCoverSize.width - coverBitmap.width / dpi) > 0.125 || Math.abs(expectedCoverSize.height - coverBitmap.height / dpi) > 0.125)
+        {
+            UserLog.addWarning("Provided box art has a size (" 
+                + '${coverBitmap.width / dpi}x${coverBitmap.height / dpi}'
+                + 'in) that does not fit the target box (${expectedCoverSize.width}x${expectedCoverSize.height}in)');
+            UserLog.addMessage('<font color="#1E8BF0">Suggested Solution:</font> Check "Stretch to Fit?" or change dpi (increase if too big and decrease if too small).');
+            UserLog.addWarning("Both of these options may lead to a more blurred output");
+        }
+        else
+            UserLog.addMessage("Selected box art FITS in target box!");
+
+        UserLog.addDivider();
     }
 
     @:bind(launchButton, MouseEvent.CLICK)
@@ -122,11 +145,9 @@ class MainView extends UIState
         // I'd like to just flag the listview as invalid layout, but that doesn't seem to do anything
         // This will work even though it's stupid
         outputCoverType.dropdownWidth = outputCoverType.dropdownWidth == 100 ? 105 : 100;
-    }
 
-    @:bind(stretchChecker, UIEvent.CHANGE)
-    function onStretchCheckerChanged(_):Void
-        guidesChecker.disabled = !stretchChecker.selected;
+        checkBoxArtSize();
+    }
 
     @:bind(exportButton, MouseEvent.CLICK)
     function onExportButtonPressed(_):Void
@@ -148,18 +169,26 @@ class MainView extends UIState
         if(realCoverSize.width < 1 || realCoverSize.height < 1)
             return UserLog.addError("The selected cover size has no internal data");
 
-        final digitalCoverWidth = Math.ceil(realCoverSize.width * dpi);
-        final digitalCoverHeight = Math.ceil(realCoverSize.height * dpi);
+        final digitalCoverWidth = stretchChecker.selected ? Math.ceil(realCoverSize.width * dpi) : coverBitmap.width;
+        final digitalCoverHeight = stretchChecker.selected ? Math.ceil(realCoverSize.height * dpi) : coverBitmap.height;
 
         var matrix = new Matrix();
-        matrix.scale(digitalCoverWidth / coverBitmap.rect.width, digitalCoverHeight / coverBitmap.rect.height);
+        if(stretchChecker.selected)
+        {
+            matrix.scale(digitalCoverWidth / coverBitmap.width, digitalCoverHeight / coverBitmap.height);
+        }
+        
         matrix.translate((digitalPageWidth - digitalCoverWidth) / 2, (digitalPageHeight - digitalCoverHeight) / 2);
+
         exportBitmapData.drawWithQuality(coverBitmap, matrix, null, null, null, true, StageQuality.BEST);
-        // Draw borders
-        exportBitmapData.fillRect(new Rectangle((digitalPageWidth - digitalCoverWidth) / 2 - 5, 0, 5, digitalPageHeight), 0xFF000000);
-        exportBitmapData.fillRect(new Rectangle(0, (digitalPageHeight - digitalCoverHeight) / 2 - 5, digitalPageWidth, 5), 0xFF000000);
-        exportBitmapData.fillRect(new Rectangle(digitalPageWidth - (digitalPageWidth - digitalCoverWidth) / 2, 0, 5, digitalPageHeight), 0xFF000000);
-        exportBitmapData.fillRect(new Rectangle(0, digitalPageHeight - (digitalPageHeight - digitalCoverHeight) / 2, digitalPageWidth, 5), 0xFF000000);
+        
+        if(guidesChecker.selected)
+        {
+            exportBitmapData.fillRect(new Rectangle((digitalPageWidth - digitalCoverWidth) / 2 - 5, 0, 5, digitalPageHeight), 0xFF000000);
+            exportBitmapData.fillRect(new Rectangle(0, (digitalPageHeight - digitalCoverHeight) / 2 - 5, digitalPageWidth, 5), 0xFF000000);
+            exportBitmapData.fillRect(new Rectangle(digitalPageWidth - (digitalPageWidth - digitalCoverWidth) / 2, 0, 5, digitalPageHeight), 0xFF000000);
+            exportBitmapData.fillRect(new Rectangle(0, digitalPageHeight - (digitalPageHeight - digitalCoverHeight) / 2, digitalPageWidth, 5), 0xFF000000);
+        }
 
         var bytes = ImageResolutionHelper.writeDPIToPNG(exportBitmapData.encode(exportBitmapData.rect, new PNGEncoderOptions()), dpi);
         var dialog = new SaveFileDialog({
@@ -169,13 +198,14 @@ class MainView extends UIState
             (button, result, fullPath) -> {
                 if(button != DialogButton.OK) return;
                 exportBitmapData.dispose(); // Get rid of the export bitmap in memory
-                Dialogs.messageBox('File saved to ${fullPath}!', "Save Result", MessageBoxType.TYPE_INFO);
+                UserLog.addMessage('File saved!');
+                UserLog.addDivider();
             });
 
         var split = imagePathButton.userData.name.split(".");
         split.pop(); // Remove extension
         dialog.fileInfo = {
-            name: outputPageType.selectedItem.text + "-" + dpi + "-" + split.join("") + ".png",
+            name: outputPageType.selectedItem.text + "-" + dpi + "dpi-" + split.join("") + ".png",
             bytes: bytes
         }
         dialog.show();
