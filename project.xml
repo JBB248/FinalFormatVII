@@ -93,5 +93,7 @@
 
 	<!-- _________________________________ Custom _______________________________ -->
 
-	<!--Place custom nodes like icons here-->
+	<icon path="appicon-16.png" size="16"/>
+	<icon path="appicon-32.png" size="32"/>
+	<icon path="appicon-64.png" size="64"/>
 </project>

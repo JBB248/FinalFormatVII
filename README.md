@@ -1,6 +1,6 @@
 <h1>Final Format VII</h1>
-Final Format VII (FFVII) is a program deesgined to help users create printable box art images. 
-To use FFVII, you enter a photo of a box art you would like to have printed, 
+Final Format VII (FFVII) is a program designed to help users create printable box art images. 
+To use FFVII, you enter an image of a box art you would like to have printed, 
 and FFVII will automatically size your image to the specific page size for the case of that box. 
 Thanks to FFVII, you can perfectly size the box art for the games in your collection every time.
 
@@ -31,7 +31,7 @@ IAustonFox
             <li>MacOS: <a href="https://lime.openfl.org/docs/advanced-setup/macos/">Setup MacOS</a></li>
             <li>Linux: <a href="https://lime.openfl.org/docs/advanced-setup/linux/">Setup Linux</a></li>
         </ul>
-        This is OPTIONAL because this project is predominantly built with Hashlink, which Flixel includes with its installation
+        This is OPTIONAL because this project is tested using Hashlink, which Flixel includes with its installation
     </li>
     <li>
         From here, you can just use the usual lime commands to build.

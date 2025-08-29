@@ -6,15 +6,24 @@
                                                                                 
 
 HEY
-Thanks for downloading Final Format VII
-This a formatting app that I made to print out a cover for Final Fantasy VII
+Thanks for downloading Final Format VII!
+This a formatting app that I made to print out a cover for Final Fantasy VII.
 
-Using this app is as simple as finding a box art online, feeding it into this app, and pressing export!
-It will create an image automatically sized to the selected page size 
-so that there's no concern of a printer incorrectly sizing the box art
+Using this app is as simple as finding a box art online, feeding it into this app, setting a box art size, and pressing export!
+It will create an image automatically sized to the selected page size, 
+so that there's no concern of a printer incorrectly sizing the box art.
+
+This app is free and open source at https://github.com/JBB248/FinalFormatVII. Feel free to do whatever you want with it!
+If you paid for this, you probably got scammed! Sorry!
+
+NOTE: If you select to stretch the box art to the desired box size, it may recieve some degredation. Use it at your own risk!
+The best strategy is to try and find a box art that's already about the same size, and use this to turn it into a printable page.
+If you think that the box art is the correct size, try changing the output dpi. 
+The image's original dpi is shown in the log after loading the image.
+
+If you want to make a box art with a reverse side for a transparent box (e.g Switch or PS3),
+export the two separately, and make sure that the are exported at the same size. 
+FFVII centers box art on the output page, so as long as they are the same size, they will be aligned if printed front and back.
 
 If you find that a cover is printing incorrectly sized, report it here:
 https://github.com/JBB248/FinalFormatVII/issues
-
-Known issues:
-After selecting a cover type, the text in the dropdown gets cut off. Just typing something into the searchbar will fix it
