@@ -15,7 +15,7 @@ class Main extends openfl.display.Sprite
 
         initHaxeUI();
 
-		addChild(new FlxGame(0, 0, initialState));
+		addChild(new FlxGame(0, 0, initialState, 60, 60, true));
 
         flixel.FlxG.mouse.useSystemCursor = true;
 	}
