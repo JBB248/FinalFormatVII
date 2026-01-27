@@ -58,7 +58,7 @@ enum abstract BoxArt(String) from String
                 {width: 10, height: 5.91}
 
             case PS4 | PS5:
-                {width: 10.62, height: 6.69}
+                {width: 10.79, height: 6.35}
 
             case A4:
                 {width: 11.69, height: 8.27}
