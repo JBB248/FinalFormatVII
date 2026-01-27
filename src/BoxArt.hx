@@ -49,7 +49,7 @@ enum abstract BoxArt(String) from String
                 {width: 10.75, height: 7.25}
 
             case DVDSLIM | SWITCH | SWITCH2:
-                {width: 8.24, height: 6.34}
+                {width: 8.25, height: 6.38}
 
             case BLURAY | PS3:
                 {width: 10.7, height: 5.81}

@@ -107,6 +107,14 @@ class MainView extends UIState
         UserLog.addDivider();
 
         checkBoxArtSize();
+
+        // For previewing the loaded image to debug
+        /*
+            var sprite:FlxSprite = new FlxSprite(coverBitmap);
+            add(sprite);
+            sprite.scale.set(0.05, 0.05);
+            sprite.updateHitbox();
+        */
     }
 
     function checkBoxArtSize():Void
