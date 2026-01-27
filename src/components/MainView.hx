@@ -127,7 +127,7 @@ class MainView extends UIState
         if(Math.abs(expectedCoverSize.width - coverBitmap.width / dpi) > 0.125 || Math.abs(expectedCoverSize.height - coverBitmap.height / dpi) > 0.125)
         {
             UserLog.addWarning("Provided box art has a size (" 
-                + '${coverBitmap.width / dpi}x${coverBitmap.height / dpi}'
+                + '${Math.round(coverBitmap.width / dpi * 100) / 100}x${Math.round(coverBitmap.height / dpi * 100) / 100}'
                 + 'in) that does not fit the target box (${expectedCoverSize.width}x${expectedCoverSize.height}in)');
             UserLog.addMessage('<font color="#1E8BF0">Suggested Solution:</font> Check "Stretch to Fit?" or change dpi (increase if too big and decrease if too small).');
             UserLog.addWarning("Both of these options may lead to a more blurred output");
