@@ -41,10 +41,10 @@
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
-	<haxelib name="flixel"        version="6.1.0"/>
-	<haxelib name="flixel-addons" version="3.3.2"/>
-    <haxelib name="lime"          version="8.2.2"/>
-    <haxelib name="openfl"        version="9.4.1"/>
+	<haxelib name="flixel"        version="6.1.2"/>
+	<haxelib name="flixel-addons" version="4.0.1"/>
+    <haxelib name="lime"          version="8.3.0"/>
+    <haxelib name="openfl"        version="9.5.0"/>
     <haxelib name="haxeui-core"  /> <!-- git 74ba53387eab0c4c2d3825e103fe70df8e46d9b1 -->
     <haxelib name="haxeui-flixel"/> <!-- git 34fe148e45292439a9c3caf00890c93bcc6f9453 -->
 
