@@ -37,19 +37,16 @@ enum abstract BoxArt(String) from String
         return switch(cast this: BoxArt)
         {
             case CDFRONT | PS1FRONT:
-                {width: 4.74, height: 4.67}
+                {width: 4.72, height: 4.72}
 
-            case CDBACK | CDINLAY | PS1BACK | PS1INLAY:
-                {width: 5.91, height: 4.59}
-
-            case CDMULITDISK | PS1MULTIDISK:
-                {width: 5.91, height: 4.61}
+            case CDBACK | CDINLAY | CDMULITDISK | PS1BACK | PS1INLAY | PS1MULTIDISK:
+                {width: 5.91, height: 4.65}
 
             case DVD| GAMECUBE | WII | WIIU | PS2 | XBOX | XBOX360:
                 {width: 10.75, height: 7.25}
 
             case DVDSLIM | SWITCH | SWITCH2:
-                {width: 8.24, height: 6.34}
+                {width: 8.25, height: 6.38}
 
             case BLURAY | PS3:
                 {width: 10.7, height: 5.81}
@@ -58,7 +55,7 @@ enum abstract BoxArt(String) from String
                 {width: 10, height: 5.91}
 
             case PS4 | PS5:
-                {width: 10.62, height: 6.69}
+                {width: 10.79, height: 6.35}
 
             case A4:
                 {width: 11.69, height: 8.27}
