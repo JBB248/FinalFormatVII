@@ -172,20 +172,32 @@ class ImageResolutionHelper
         if(firstIFDOffset < 8)
             throw("Invalid TIFF data (first offset less than 8). Defaulting to 72 DPI");
 
-        final data = findResolutionTiffTags(stream, tiffOffset, tiffOffset + firstIFDOffset);
-        if(data.XRes != data.YRes)
-            throw("XResolution (" + data.XRes + ") does not match YResolution (" + data.YRes + ")");
+        final XRes = findTiffTag(stream, XRESOLUTION, tiffOffset, tiffOffset + firstIFDOffset);
+        if(XRes == null)
+            throw("XResolution Tiff tag could not be found. Defaulting to 72 DPI");
 
-        if(data.ResUnit != INCHES)
+        final YRes = findTiffTag(stream, YRESOLUTION, tiffOffset, tiffOffset + firstIFDOffset);
+        if(YRes == null)
+            throw("YResolution Tiff tag could not be found. Defaulting to 72 DPI");
+
+        final resUnit = findTiffTag(stream, RESOLUTIONUNIT, tiffOffset, tiffOffset + firstIFDOffset);
+        if(resUnit == null)
+            throw("ResolutionUnit Tiff tag could not be found. Defaulting to 72 DPI");
+
+        if(XRes != YRes)
+            throw("XResolution (" + XRes + ") does not match YResolution (" + YRes + ")");
+
+        stream.close();
+
+        if(resUnit != INCHES)
         {
-            if(data.ResUnit == CENTIMETERS)
-                data.XRes = Math.ceil(data.XRes / 2.54);
+            if(resUnit == CENTIMETERS)
+                return Math.ceil(XRes / 2.54);
             else
                 throw("Unknown unit found in Resolution Unit");
         }
 
-        stream.close();
-        return data.XRes;
+        return XRes;
     }
 
     inline static function testJPGHeader(bytes:Bytes):Bool
@@ -227,38 +239,25 @@ class ImageResolutionHelper
      * @param tiffStart The position in the stream that the Tiff section starts at
      * @param dirStart  The position that the first tiff tag begins at
      */
-    static function findResolutionTiffTags(stream:BytesInput, tiffStart:Int, dirStart:Int):{XRes:Int, YRes:Int, ResUnit:Int}
+    static function findTiffTag(stream:BytesInput, tagID:Int, tiffStart:Int, dirStart:Int):Null<Int>
     {
+        final position = stream.position;
         final entries = stream.readUInt16();
-        final data = {
-            XRes: -1,
-            YRes: -1,
-            ResUnit: -1
-        };
-
+        var value = null;
         for(i in 0...entries)
         {
             final entryOffset = dirStart + i * 12 + 2;
             stream.position = entryOffset;
             final tag = stream.readUInt16();
-            if(tag == XRESOLUTION)
-                data.XRes = readTagValue(stream, entryOffset, tiffStart);
-            else if(tag == YRESOLUTION)
-                data.YRes = readTagValue(stream, entryOffset, tiffStart);
-            else if(tag == RESOLUTIONUNIT)
-                data.ResUnit = readTagValue(stream, entryOffset, tiffStart);
-            else if(tag == ORIENTATION)
-                trace(readTagValue(stream, entryOffset, tiffStart));
+            if(tag == tagID)
+            {
+                value = readTagValue(stream, entryOffset, tiffStart);
+                break;
+            }
         }
 
-        if(data.XRes == -1)
-            throw("XResolution Tiff tag could not be found. Defaulting to 72 DPI");
-        if(data.YRes == -1)
-            throw("YResolution Tiff tag could not be found. Defaulting to 72 DPI");
-        if(data.ResUnit == -1)
-            throw("ResolutionUnit Tiff tag could not be found. Defaulting to 72 DPI");
-
-        return data;
+        stream.position = position;
+        return value;
     }
 
     /**
