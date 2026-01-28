@@ -124,14 +124,10 @@ class ImageResolutionHelper
     }
 
     // JPG Exif metadata tags
+    static inline var ORIENTATION:Int = 274; // 0x0112
     static inline var XRESOLUTION:Int = 282; // 0x011A
     static inline var YRESOLUTION:Int = 283; // 0x011B
-
     static inline var RESOLUTIONUNIT:Int = 296; // 0x0128
-    static inline var INCHES:Int = 2;
-    static inline var CENTIMETERS:Int = 3;
-
-    static inline var ORIENTATION:Int = 274; // 0x0112
 
     /**
      * Finds the `XResolution` value in DPI stored in a JPG image file.
@@ -145,13 +141,61 @@ class ImageResolutionHelper
             return -1;
         }
 
-        final start = findEXIFMarker(bytes);
-        final tiffOffset = start + 6;
-        if(start < 0)
+        try
+        {
+            // Search the EXIF first
+            return tryFromEXIF(bytes);
+        }
+        catch(error)
+        {
+            try
+            {
+                return tryFromJFIF(bytes);
+            }
+            catch(error2)
+            {
+                throw error2.message;
+            }
+
+            throw error.message;
+        }
+    }
+
+    static function tryFromJFIF(bytes:Bytes):Int
+    {
+        var marker = findJFIFMarker(bytes);
+        if(bytes.getString(marker, 4) != "JFIF")
+            return -1;
+
+        var offset = marker + 7; // Skip the identifier and major/minor versions
+        final resUnit = bytes.get(offset);
+        final XRes = (bytes.get(offset + 1) << 8) | bytes.get(offset + 2);
+        final YRes = (bytes.get(offset + 3) << 8) | bytes.get(offset + 4);
+
+        if(XRes != YRes)
+            throw("XResolution (" + XRes + ") does not match YResolution (" + YRes + ")");
+
+        if(resUnit != 1) // DPI
+        {
+            if(resUnit == 2) // DPCM
+                return Math.ceil(XRes / 2.54);
+            else
+                throw("Unknown unit found in Resolution Unit");
+        }
+
+        return XRes;
+    }
+
+    // Note: When this function throws an error, it does not close the stream
+    static function tryFromEXIF(bytes:Bytes):Int
+    {
+        final marker = findEXIFMarker(bytes);
+        final tiffOffset = marker + 6;
+        if(marker < 0)
             throw("JPG Exif chunk could not be found. Defaulting to 72 DPI");
 
         // Nead to use the stream because it acknowledges endianness
-        var stream = new BytesInput(bytes, start);
+        var stream = new BytesInput(bytes, marker);
         if(stream.readString(4) != "Exif")
             throw("JPG Exif chunk could not be read. Defaulting to 72 DPI");
 
@@ -189,9 +233,9 @@ class ImageResolutionHelper
 
         stream.close();
 
-        if(resUnit != INCHES)
+        if(resUnit != 2) // DPI
         {
-            if(resUnit == CENTIMETERS)
+            if(resUnit == 3) // DPCM
                 return Math.ceil(XRes / 2.54);
             else
                 throw("Unknown unit found in Resolution Unit");
@@ -203,6 +247,30 @@ class ImageResolutionHelper
     inline static function testJPGHeader(bytes:Bytes):Bool
     {
         return bytes.get(0) == 255 && bytes.get(1) == 216;
+    }
+
+    static function findJFIFMarker(bytes:Bytes):Int
+    {
+        var offset = 2;
+        while(offset < bytes.length)
+        {
+            if(bytes.get(offset) != 255) // 0xFF
+            {
+                trace("Not a valid marker at offset: " + offset + ". Found: " + bytes.get(offset));
+                return -1;
+            }
+
+            final marker = bytes.get(offset + 1);
+            if(marker == 224) // 0xE0
+            {
+                return offset + 4;
+            }
+
+            // Skip to the next chunk
+            offset += 2 + (bytes.get(offset + 2) << 8) | bytes.get(offset + 3); // readUInt16() equivalent
+        }
+
+        return -1;
     }
 
     /**
