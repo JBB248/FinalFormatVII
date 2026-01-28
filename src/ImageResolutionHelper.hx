@@ -131,6 +131,8 @@ class ImageResolutionHelper
     static inline var INCHES:Int = 2;
     static inline var CENTIMETERS:Int = 3;
 
+    static inline var ORIENTATION:Int = 274; // 0x0112
+
     /**
      * Finds the `XResolution` value in DPI stored in a JPG image file.
      * If for any reason the process throws, the resolution will be defaulted to 72 DPI
@@ -245,6 +247,8 @@ class ImageResolutionHelper
                 data.YRes = readTagValue(stream, entryOffset, tiffStart);
             else if(tag == RESOLUTIONUNIT)
                 data.ResUnit = readTagValue(stream, entryOffset, tiffStart);
+            else if(tag == ORIENTATION)
+                trace(readTagValue(stream, entryOffset, tiffStart));
         }
 
         if(data.XRes == -1)
