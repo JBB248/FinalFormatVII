@@ -73,6 +73,7 @@ class MainView extends UIState
     function displaySelectedFileInfo(fileInfo:SelectedFileInfo):Void
     {
         var dpi = 72;
+        var orientation = 0;
         var bytes = fileInfo.bytes;
         var path = fileInfo.fullPath.toLowerCase();
         try
@@ -80,7 +81,11 @@ class MainView extends UIState
             if(path.endsWith("png"))
                 dpi = ImageResolutionHelper.findDPIFromPNG(bytes);
             else if(path.endsWith(".jpg") || path.endsWith("jpeg"))
-                dpi = ImageResolutionHelper.findDPIFromJPG(bytes);
+            {
+                final jpgData = ImageResolutionHelper.findDPIFromJPG(bytes);
+                dpi = jpgData.resolution;
+                orientation = jpgData.orientation;
+            }
             else if(path.endsWith("gif"))
                 return UserLog.addError("gif file extension will not be supported. Please convert the image into png, or jpg");
             else if(path.endsWith("bmp"))

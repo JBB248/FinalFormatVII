@@ -4,6 +4,11 @@ import haxe.io.Bytes;
 import haxe.io.BytesBuffer;
 import haxe.io.BytesInput;
 
+typedef JPGResolutionData = {
+    var resolution:Int;
+    var orientation:Int;
+}
+
 class ImageResolutionHelper
 {
     /**
@@ -129,43 +134,43 @@ class ImageResolutionHelper
     static inline var YRESOLUTION:Int = 283; // 0x011B
     static inline var RESOLUTIONUNIT:Int = 296; // 0x0128
 
+    
+
     /**
      * Finds the `XResolution` value in DPI stored in a JPG image file.
      * If for any reason the process throws, the resolution will be defaulted to 72 DPI
      */
-    public static function findDPIFromJPG(bytes:Bytes):Int
+    public static function findDPIFromJPG(bytes:Bytes):JPGResolutionData
     {
         if(!testJPGHeader(bytes))
-        {
             throw("Submitted file is not a valid JPG");
-            return -1;
-        }
 
+        final data = {resolution: 72, orientation:0};
         try
         {
             // Search the EXIF first
-            return tryFromEXIF(bytes);
+            tryFromEXIF(data, bytes);
         }
-        catch(error)
+        catch(_)
         {
             try
             {
-                return tryFromJFIF(bytes);
+                tryFromJFIF(data, bytes);
             }
-            catch(error2)
+            catch(error)
             {
-                throw error2.message;
+                throw error.message;
             }
-
-            throw error.message;
         }
+
+        return data;
     }
 
-    static function tryFromJFIF(bytes:Bytes):Int
+    static function tryFromJFIF(data:JPGResolutionData, bytes:Bytes):Void
     {
         var marker = findJFIFMarker(bytes);
         if(bytes.getString(marker, 4) != "JFIF")
-            return -1;
+            return;
 
         var offset = marker + 7; // Skip the identifier and major/minor versions
         final resUnit = bytes.get(offset);
@@ -178,16 +183,16 @@ class ImageResolutionHelper
         if(resUnit != 1) // DPI
         {
             if(resUnit == 2) // DPCM
-                return Math.ceil(XRes / 2.54);
+                data.resolution = Math.ceil(XRes / 2.54);
             else
                 throw("Unknown unit found in Resolution Unit");
         }
-
-        return XRes;
+        else
+            data.resolution = XRes;
     }
 
     // Note: When this function throws an error, it does not close the stream
-    static function tryFromEXIF(bytes:Bytes):Int
+    static function tryFromEXIF(data:JPGResolutionData, bytes:Bytes):Void
     {
         final marker = findEXIFMarker(bytes);
         final tiffOffset = marker + 6;
@@ -216,6 +221,12 @@ class ImageResolutionHelper
         if(firstIFDOffset < 8)
             throw("Invalid TIFF data (first offset less than 8). Defaulting to 72 DPI");
 
+        final orientation = findTiffTag(stream, ORIENTATION, tiffOffset, tiffOffset + firstIFDOffset);
+        if(orientation == null)
+            data.orientation = 0; // No orientation exif data. Assume normal
+        else
+            data.orientation = orientation;
+
         final XRes = findTiffTag(stream, XRESOLUTION, tiffOffset, tiffOffset + firstIFDOffset);
         if(XRes == null)
             throw("XResolution Tiff tag could not be found. Defaulting to 72 DPI");
@@ -224,24 +235,24 @@ class ImageResolutionHelper
         if(YRes == null)
             throw("YResolution Tiff tag could not be found. Defaulting to 72 DPI");
 
+        if(XRes != YRes)
+            throw("XResolution (" + XRes + ") does not match YResolution (" + YRes + ")");
+
         final resUnit = findTiffTag(stream, RESOLUTIONUNIT, tiffOffset, tiffOffset + firstIFDOffset);
         if(resUnit == null)
             throw("ResolutionUnit Tiff tag could not be found. Defaulting to 72 DPI");
-
-        if(XRes != YRes)
-            throw("XResolution (" + XRes + ") does not match YResolution (" + YRes + ")");
 
         stream.close();
 
         if(resUnit != 2) // DPI
         {
             if(resUnit == 3) // DPCM
-                return Math.ceil(XRes / 2.54);
+                data.resolution = Math.ceil(XRes / 2.54);
             else
                 throw("Unknown unit found in Resolution Unit");
         }
-
-        return XRes;
+        else
+            data.resolution = XRes;
     }
 
     inline static function testJPGHeader(bytes:Bytes):Bool
@@ -309,7 +320,7 @@ class ImageResolutionHelper
      */
     static function findTiffTag(stream:BytesInput, tagID:Int, tiffStart:Int, dirStart:Int):Null<Int>
     {
-        final position = stream.position;
+        stream.position = dirStart;
         final entries = stream.readUInt16();
         var value = null;
         for(i in 0...entries)
@@ -324,7 +335,6 @@ class ImageResolutionHelper
             }
         }
 
-        stream.position = position;
         return value;
     }
 
