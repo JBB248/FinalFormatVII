@@ -17,12 +17,15 @@ import openfl.geom.Matrix;
 import openfl.geom.Rectangle;
 import openfl.net.URLRequest;
 
+import ImageResolutionHelper;
+
 using StringTools;
 
 @:build(haxe.ui.ComponentBuilder.build("src/components/main.xml"))
 class MainView extends UIState
 {
     var coverBitmap:BitmapData;
+    var imageData:ImageResolutionData = {resolution: 72, orientation: 1};
 
 	override public function create():Void
 	{
@@ -72,20 +75,14 @@ class MainView extends UIState
 
     function displaySelectedFileInfo(fileInfo:SelectedFileInfo):Void
     {
-        var dpi = 72;
-        var orientation = 0;
         var bytes = fileInfo.bytes;
         var path = fileInfo.fullPath.toLowerCase();
         try
         {
             if(path.endsWith("png"))
-                dpi = ImageResolutionHelper.findDPIFromPNG(bytes);
+                ImageResolutionHelper.findDPIFromPNG(bytes, imageData);
             else if(path.endsWith(".jpg") || path.endsWith("jpeg"))
-            {
-                final jpgData = ImageResolutionHelper.findDPIFromJPG(bytes);
-                dpi = jpgData.resolution;
-                orientation = jpgData.orientation;
-            }
+                ImageResolutionHelper.findDPIFromJPG(bytes, imageData);
             else if(path.endsWith("gif"))
                 return UserLog.addError("gif file extension will not be supported. Please convert the image into png, or jpg");
             else if(path.endsWith("bmp"))
@@ -105,21 +102,68 @@ class MainView extends UIState
             coverBitmap.dispose();
 
         coverBitmap = BitmapData.fromBytes(bytes);
+        final orientation = imageData.orientation;
+        if(orientation > 1)
+        {
+            var width = coverBitmap.width;
+            var height = coverBitmap.height;
+            if(width < height)
+            {
+                height = coverBitmap.width;
+                width = coverBitmap.height;
+            }
+
+            final transformBitmap = new BitmapData(width, height);
+            final transform = new Matrix();
+
+            switch(orientation)
+            {
+                case 2: // Mirror Horizontal
+                    transform.scale(-1, 1);
+                    transform.translate(width, 0);
+
+                case 3: // Rotate 180
+                    transform.rotate(Math.PI);
+                    transform.translate(width, height);
+
+                case 4: // Mirror vertical
+                    transform.scale(1, -1);
+                    transform.translate(0, height);
+
+                case 5: // Mirror horizontal and rotate 270 CW
+                    transform.scale(-1, 1);
+                    transform.translate(width, 0);
+                    transform.rotate(3 * Math.PI / 2);
+                    transform.translate(0, height);
+
+                case 6: // Rotate 90 CW
+                    transform.rotate(Math.PI / 2);
+                    transform.translate(width, 0);
+
+                case 7: // Mirror horizontal and rotate 90 CW
+                    transform.scale(-1, 1);
+                    transform.translate(width, 0);
+                    transform.rotate(Math.PI / 2);
+                    transform.translate(width, 0);
+
+                case 8: // Rotate 270 CW
+                    transform.rotate(3 * Math.PI / 2);
+                    transform.translate(0, height);
+
+            }
+
+            transformBitmap.draw(coverBitmap, transform);
+            coverBitmap.dispose();
+            coverBitmap = transformBitmap;
+        }
+        
         UserLog.addMessage(
             'Successfully loaded <font color="#1E8BF0">' + 
             coverBitmap.width + 'x' + coverBitmap.height + 
-            '</font> px image with a resolution of <font color="#1E8BF0">' + dpi + '</font> DPI');
+            '</font> px image with a resolution of <font color="#1E8BF0">' + imageData.resolution + '</font> DPI');
         UserLog.addDivider();
 
         checkBoxArtSize();
-
-        // For previewing the loaded image to debug
-        /*
-            var sprite:FlxSprite = new FlxSprite(coverBitmap);
-            add(sprite);
-            sprite.scale.set(0.05, 0.05);
-            sprite.updateHitbox();
-        */
     }
 
     function checkBoxArtSize():Void
@@ -127,9 +171,9 @@ class MainView extends UIState
         if(coverBitmap == null) return;
 
         var expectedCoverSize = (cast outputCoverType.selectedItem.text: BoxArt).getDimensions();
-        final dpi = Std.parseInt(outputDpi.text);
-
-        if(Math.abs(expectedCoverSize.width - coverBitmap.width / dpi) > 0.125 || Math.abs(expectedCoverSize.height - coverBitmap.height / dpi) > 0.125)
+        final dpi = imageData.resolution;
+        if(Math.abs(expectedCoverSize.width - coverBitmap.width / dpi) > 0.125 
+                || Math.abs(expectedCoverSize.height - coverBitmap.height / dpi) > 0.125)
         {
             UserLog.addWarning("Provided box art has a size (" 
                 + '${Math.round(coverBitmap.width / dpi * 100) / 100}x${Math.round(coverBitmap.height / dpi * 100) / 100}'
@@ -143,6 +187,7 @@ class MainView extends UIState
         UserLog.addDivider();
     }
 
+    // Maybe do not do this? This website is a super miserable without an adblocker
     @:bind(launchButton, MouseEvent.CLICK)
     function onFindCoversButtonPressed(_):Void
         Lib.getURL(new URLRequest("https://www.thecoverproject.net/"), "_blank");
@@ -171,7 +216,7 @@ class MainView extends UIState
         if(realPageSize.width < 1 || realPageSize.height < 1)
             return UserLog.addError("The selected page size has no internal data");
 
-        final dpi = Std.parseInt(outputDpi.text);
+        final dpi = imageData.resolution;
         final digitalPageWidth = Math.ceil(dpi * realPageSize.width);
         final digitalPageHeight = Math.ceil(dpi * realPageSize.height);
 

@@ -4,7 +4,7 @@ import haxe.io.Bytes;
 import haxe.io.BytesBuffer;
 import haxe.io.BytesInput;
 
-typedef JPGResolutionData = {
+typedef ImageResolutionData = {
     var resolution:Int;
     var orientation:Int;
 }
@@ -15,13 +15,13 @@ class ImageResolutionHelper
      * Finds the resolution value in DPI stored in a PNG image file.
      * If for any reason the process throws, the resolution will be defaulted to 72 DPI
      */
-    public static function findDPIFromPNG(bytes:Bytes):Int
+    public static function findDPIFromPNG(bytes:Bytes, data:ImageResolutionData):Void
     {
+        data.resolution = 72;
+        data.orientation = 1;
+
         if(!testPNGHeader(bytes))
-        {
             throw("Submitted file is not a valid PNG");
-            return -1;
-        }
 
         final marker = findpHYsMarker(bytes);
         if(marker < 1)
@@ -34,7 +34,7 @@ class ImageResolutionHelper
             throw("Horizontal ppm (" + ppmX + ") does not match vertical ppm (" + ppmY + ")");
 
         // Convert pixels per meter to dots per inch
-        return Math.ceil(ppmX / 1000 * 25.4);
+        data.resolution = Math.ceil(ppmX / 1000 * 25.4);
     }
 
     /**
@@ -140,12 +140,14 @@ class ImageResolutionHelper
      * Finds the `XResolution` value in DPI stored in a JPG image file.
      * If for any reason the process throws, the resolution will be defaulted to 72 DPI
      */
-    public static function findDPIFromJPG(bytes:Bytes):JPGResolutionData
+    public static function findDPIFromJPG(bytes:Bytes, data:ImageResolutionData):Void
     {
+        data.resolution = 72;
+        data.orientation = 1;
+
         if(!testJPGHeader(bytes))
             throw("Submitted file is not a valid JPG");
 
-        final data = {resolution: 72, orientation:0};
         try
         {
             // Search the EXIF first
@@ -162,11 +164,9 @@ class ImageResolutionHelper
                 throw error.message;
             }
         }
-
-        return data;
     }
 
-    static function tryFromJFIF(data:JPGResolutionData, bytes:Bytes):Void
+    static function tryFromJFIF(data:ImageResolutionData, bytes:Bytes):Void
     {
         var marker = findJFIFMarker(bytes);
         if(bytes.getString(marker, 4) != "JFIF")
@@ -192,7 +192,7 @@ class ImageResolutionHelper
     }
 
     // Note: When this function throws an error, it does not close the stream
-    static function tryFromEXIF(data:JPGResolutionData, bytes:Bytes):Void
+    static function tryFromEXIF(data:ImageResolutionData, bytes:Bytes):Void
     {
         final marker = findEXIFMarker(bytes);
         final tiffOffset = marker + 6;
@@ -223,7 +223,7 @@ class ImageResolutionHelper
 
         final orientation = findTiffTag(stream, ORIENTATION, tiffOffset, tiffOffset + firstIFDOffset);
         if(orientation == null)
-            data.orientation = 0; // No orientation exif data. Assume normal
+            data.orientation = 1; // No orientation exif data. Assume normal
         else
             data.orientation = orientation;
 
