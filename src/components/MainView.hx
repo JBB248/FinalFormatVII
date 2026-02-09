@@ -37,7 +37,7 @@ class MainView extends UIState
     override function onReady():Void
     {
         imagePathButton.registerEvent(MouseEvent.CLICK, loadFrontBoxArt);
-        outputDpi.registerEvent(FocusEvent.FOCUS_OUT, (_) -> checkBoxArtSize());
+        outputDpi.registerEvent(FocusEvent.FOCUS_OUT, (_) -> checkBoxartSize());
     }
 
 	override public function update(elapsed:Float):Void
@@ -102,60 +102,7 @@ class MainView extends UIState
             coverBitmap.dispose();
 
         coverBitmap = BitmapData.fromBytes(bytes);
-        final orientation = imageData.orientation;
-        if(orientation > 1)
-        {
-            var width = coverBitmap.width;
-            var height = coverBitmap.height;
-            if(width < height)
-            {
-                height = coverBitmap.width;
-                width = coverBitmap.height;
-            }
-
-            final transformBitmap = new BitmapData(width, height);
-            final transform = new Matrix();
-
-            switch(orientation)
-            {
-                case 2: // Mirror Horizontal
-                    transform.scale(-1, 1);
-                    transform.translate(width, 0);
-
-                case 3: // Rotate 180
-                    transform.rotate(Math.PI);
-                    transform.translate(width, height);
-
-                case 4: // Mirror vertical
-                    transform.scale(1, -1);
-                    transform.translate(0, height);
-
-                case 5: // Mirror horizontal and rotate 270 CW
-                    transform.scale(-1, 1);
-                    transform.translate(width, 0);
-                    transform.rotate(3 * Math.PI / 2);
-                    transform.translate(0, height);
-
-                case 6: // Rotate 90 CW
-                    transform.rotate(Math.PI / 2);
-                    transform.translate(width, 0);
-
-                case 7: // Mirror horizontal and rotate 90 CW
-                    transform.scale(-1, 1);
-                    transform.translate(width, 0);
-                    transform.rotate(Math.PI / 2);
-                    transform.translate(width, 0);
-
-                case 8: // Rotate 270 CW
-                    transform.rotate(3 * Math.PI / 2);
-                    transform.translate(0, height);
-
-            }
-
-            transformBitmap.draw(coverBitmap, transform);
-            coverBitmap.dispose();
-            coverBitmap = transformBitmap;
-        }
+        transformBoxart(imageData.orientation);
         
         UserLog.addMessage(
             'Successfully loaded <font color="#1E8BF0">' + 
@@ -163,15 +110,72 @@ class MainView extends UIState
             '</font> px image with a resolution of <font color="#1E8BF0">' + imageData.resolution + '</font> DPI');
         UserLog.addDivider();
 
-        checkBoxArtSize();
+        checkBoxartSize();
     }
 
-    function checkBoxArtSize():Void
+    function transformBoxart(orientation:Int):Void
+    {
+        if(orientation < 2)
+            return;
+        
+        var width = coverBitmap.width;
+        var height = coverBitmap.height;
+        if(width < height)
+        {
+            height = coverBitmap.width;
+            width = coverBitmap.height;
+        }
+
+        final transformBitmap = new BitmapData(width, height);
+        final transform = new Matrix();
+
+        switch(orientation)
+        {
+            case 2: // Mirror Horizontal
+                transform.scale(-1, 1);
+                transform.translate(width, 0);
+
+            case 3: // Rotate 180
+                transform.rotate(Math.PI);
+                transform.translate(width, height);
+
+            case 4: // Mirror vertical
+                transform.scale(1, -1);
+                transform.translate(0, height);
+
+            case 5: // Mirror horizontal and rotate 270 CW
+                transform.scale(-1, 1);
+                transform.translate(width, 0);
+                transform.rotate(3 * Math.PI / 2);
+                transform.translate(0, height);
+
+            case 6: // Rotate 90 CW
+                transform.rotate(Math.PI / 2);
+                transform.translate(width, 0);
+
+            case 7: // Mirror horizontal and rotate 90 CW
+                transform.scale(-1, 1);
+                transform.translate(width, 0);
+                transform.rotate(Math.PI / 2);
+                transform.translate(width, 0);
+
+            case 8: // Rotate 270 CW
+                transform.rotate(3 * Math.PI / 2);
+                transform.translate(0, height);
+
+        }
+
+        transformBitmap.draw(coverBitmap, transform);
+        coverBitmap.dispose();
+        coverBitmap = transformBitmap;
+    }
+
+    function checkBoxartSize():Void
     {
         if(coverBitmap == null) return;
 
         var expectedCoverSize = (cast outputCoverType.selectedItem.text: BoxArt).getDimensions();
-        final dpi = imageData.resolution;
+        final dpi = Std.parseInt(outputDpi.value);
         if(Math.abs(expectedCoverSize.width - coverBitmap.width / dpi) > 0.125 
                 || Math.abs(expectedCoverSize.height - coverBitmap.height / dpi) > 0.125)
         {
@@ -203,7 +207,7 @@ class MainView extends UIState
         // This will work even though it's stupid
         outputCoverType.dropdownWidth = outputCoverType.dropdownWidth == 100 ? 105 : 100;
 
-        checkBoxArtSize();
+        checkBoxartSize();
     }
 
     @:bind(exportButton, MouseEvent.CLICK)
@@ -216,7 +220,7 @@ class MainView extends UIState
         if(realPageSize.width < 1 || realPageSize.height < 1)
             return UserLog.addError("The selected page size has no internal data");
 
-        final dpi = imageData.resolution;
+        final dpi = Std.parseInt(outputDpi.value);
         final digitalPageWidth = Math.ceil(dpi * realPageSize.width);
         final digitalPageHeight = Math.ceil(dpi * realPageSize.height);
 
