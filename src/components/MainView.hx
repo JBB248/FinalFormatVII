@@ -127,41 +127,28 @@ class MainView extends UIState
         }
 
         final transformBitmap = new BitmapData(width, height);
-        final transform = new Matrix();
-
-        switch(orientation)
+        final transform = switch(orientation)
         {
-            case 2: // Mirror Horizontal
-                transform.scale(-1, 1);
-                transform.translate(width, 0);
+            default: // 2: Mirror Horizontal
+                new Matrix(-1, 0, 0, 1, width, 0);
 
             case 3: // Rotate 180
-                transform.rotate(Math.PI);
-                transform.translate(width, height);
+                new Matrix(-1, 0, 0, -1, width, height);
 
             case 4: // Mirror vertical
-                transform.scale(1, -1);
-                transform.translate(0, height);
+                new Matrix(1, 0, 0, -1, 0, height);
 
             case 5: // Mirror horizontal and rotate 270 CW
-                transform.scale(-1, 1);
-                transform.translate(width, 0);
-                transform.rotate(3 * Math.PI / 2);
-                transform.translate(0, height);
+                new Matrix(0, 1, 1, 0, 0, 0); 
 
             case 6: // Rotate 90 CW
-                transform.rotate(Math.PI / 2);
-                transform.translate(width, 0);
+                new Matrix(0, 1, -1, 0, width, 0);
 
             case 7: // Mirror horizontal and rotate 90 CW
-                transform.scale(-1, 1);
-                transform.translate(width, 0);
-                transform.rotate(Math.PI / 2);
-                transform.translate(width, 0);
+                new Matrix(0, -1, -1, 0, width, height);
 
             case 8: // Rotate 270 CW
-                transform.rotate(3 * Math.PI / 2);
-                transform.translate(0, height);
+                new Matrix(0, -1, 1, 0, 0, height);
 
         }
 
