@@ -23,7 +23,7 @@
                 <button id="image-path-button" styleName="searchLink" text="[Select Box Art]" verticalAlign="center"/>
             </hbox>
             <vbox width="100%">
-                <button id="launch-button" text="Find Box Art" horizontalAlign="right"/>
+                <button id="launch-button" text="Find Box Art at GameFAQs" horizontalAlign="right"/>
             </vbox>
         </hbox>
         <hbox width="100%">

@@ -181,7 +181,7 @@ class MainView extends UIState
     // Maybe do not do this? This website is a super miserable without an adblocker
     @:bind(launchButton, MouseEvent.CLICK)
     function onFindCoversButtonPressed(_):Void
-        Lib.getURL(new URLRequest("https://www.thecoverproject.net/"), "_blank");
+        Lib.getURL(new URLRequest("https://gamefaqs.gamespot.com/"), "_blank");
 
     @:bind(outputCoverType, UIEvent.CHANGE)
     function outputCoverTypeChanged(_):Void
