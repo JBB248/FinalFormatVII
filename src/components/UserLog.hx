@@ -1,5 +1,6 @@
 package components;
 
+import haxe.ui.Toolkit;
 import haxe.ui.components.Label;
 import haxe.ui.containers.Box;
 import haxe.ui.containers.ScrollView;
@@ -39,6 +40,10 @@ class UserLog extends ScrollView
         divider.customStyle.height = 1;
         divider.customStyle.backgroundColor = 0xFF454C56;
         _instance.addComponent(divider);
+
+        // Auto scroll if the user hasn't already scrolled up a bit
+        if(_instance.vscrollPos >= _instance.vscrollMax - 20) 
+            Toolkit.callLater(() -> _instance.vscrollPos = _instance.vscrollMax);
     }
 
     public function new()

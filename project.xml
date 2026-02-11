@@ -37,7 +37,7 @@
 	<!-- Development build -->
 	<set name="BUILD_DIR" value="export/beta-debug" if="debug"/>
 
-	<assets path="GUIDE.txt" rename="README.txt"/>
+	<assets path="GUIDE.md" rename="README.md"/>
 
 	<!-- _______________________________ Libraries ______________________________ -->
 

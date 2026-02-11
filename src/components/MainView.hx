@@ -17,12 +17,15 @@ import openfl.geom.Matrix;
 import openfl.geom.Rectangle;
 import openfl.net.URLRequest;
 
+import ImageResolutionHelper;
+
 using StringTools;
 
 @:build(haxe.ui.ComponentBuilder.build("src/components/main.xml"))
 class MainView extends UIState
 {
     var coverBitmap:BitmapData;
+    var imageData:ImageResolutionData = {resolution: 72, orientation: 1};
 
 	override public function create():Void
 	{
@@ -34,7 +37,7 @@ class MainView extends UIState
     override function onReady():Void
     {
         imagePathButton.registerEvent(MouseEvent.CLICK, loadFrontBoxArt);
-        outputDpi.registerEvent(FocusEvent.FOCUS_OUT, (_) -> checkBoxArtSize());
+        outputDpi.registerEvent(FocusEvent.FOCUS_OUT, (_) -> checkBoxartSize());
     }
 
 	override public function update(elapsed:Float):Void
@@ -72,15 +75,14 @@ class MainView extends UIState
 
     function displaySelectedFileInfo(fileInfo:SelectedFileInfo):Void
     {
-        var dpi = 72;
         var bytes = fileInfo.bytes;
         var path = fileInfo.fullPath.toLowerCase();
         try
         {
             if(path.endsWith("png"))
-                dpi = ImageResolutionHelper.findDPIFromPNG(bytes);
+                ImageResolutionHelper.findDPIFromPNG(bytes, imageData);
             else if(path.endsWith(".jpg") || path.endsWith("jpeg"))
-                dpi = ImageResolutionHelper.findDPIFromJPG(bytes);
+                ImageResolutionHelper.findDPIFromJPG(bytes, imageData);
             else if(path.endsWith("gif"))
                 return UserLog.addError("gif file extension will not be supported. Please convert the image into png, or jpg");
             else if(path.endsWith("bmp"))
@@ -100,31 +102,69 @@ class MainView extends UIState
             coverBitmap.dispose();
 
         coverBitmap = BitmapData.fromBytes(bytes);
+        transformBoxart(imageData.orientation);
+        
         UserLog.addMessage(
             'Successfully loaded <font color="#1E8BF0">' + 
             coverBitmap.width + 'x' + coverBitmap.height + 
-            '</font> px image with a resolution of <font color="#1E8BF0">' + dpi + '</font> DPI');
+            '</font> px image with a resolution of <font color="#1E8BF0">' + imageData.resolution + '</font> DPI');
         UserLog.addDivider();
 
-        checkBoxArtSize();
-
-        // For previewing the loaded image to debug
-        /*
-            var sprite:FlxSprite = new FlxSprite(coverBitmap);
-            add(sprite);
-            sprite.scale.set(0.05, 0.05);
-            sprite.updateHitbox();
-        */
+        checkBoxartSize();
     }
 
-    function checkBoxArtSize():Void
+    function transformBoxart(orientation:Int):Void
+    {
+        if(orientation < 2)
+            return;
+        
+        var width = coverBitmap.width;
+        var height = coverBitmap.height;
+        if(width < height)
+        {
+            height = coverBitmap.width;
+            width = coverBitmap.height;
+        }
+
+        final transformBitmap = new BitmapData(width, height);
+        final transform = switch(orientation)
+        {
+            default: // 2: Mirror Horizontal
+                new Matrix(-1, 0, 0, 1, width, 0);
+
+            case 3: // Rotate 180
+                new Matrix(-1, 0, 0, -1, width, height);
+
+            case 4: // Mirror vertical
+                new Matrix(1, 0, 0, -1, 0, height);
+
+            case 5: // Mirror horizontal and rotate 270 CW
+                new Matrix(0, 1, 1, 0, 0, 0); 
+
+            case 6: // Rotate 90 CW
+                new Matrix(0, 1, -1, 0, width, 0);
+
+            case 7: // Mirror horizontal and rotate 90 CW
+                new Matrix(0, -1, -1, 0, width, height);
+
+            case 8: // Rotate 270 CW
+                new Matrix(0, -1, 1, 0, 0, height);
+
+        }
+
+        transformBitmap.draw(coverBitmap, transform);
+        coverBitmap.dispose();
+        coverBitmap = transformBitmap;
+    }
+
+    function checkBoxartSize():Void
     {
         if(coverBitmap == null) return;
 
         var expectedCoverSize = (cast outputCoverType.selectedItem.text: BoxArt).getDimensions();
-        final dpi = Std.parseInt(outputDpi.text);
-
-        if(Math.abs(expectedCoverSize.width - coverBitmap.width / dpi) > 0.125 || Math.abs(expectedCoverSize.height - coverBitmap.height / dpi) > 0.125)
+        final dpi = Std.parseInt(outputDpi.value);
+        if(Math.abs(expectedCoverSize.width - coverBitmap.width / dpi) > 0.125 
+                || Math.abs(expectedCoverSize.height - coverBitmap.height / dpi) > 0.125)
         {
             UserLog.addWarning("Provided box art has a size (" 
                 + '${Math.round(coverBitmap.width / dpi * 100) / 100}x${Math.round(coverBitmap.height / dpi * 100) / 100}'
@@ -138,10 +178,6 @@ class MainView extends UIState
         UserLog.addDivider();
     }
 
-    @:bind(launchButton, MouseEvent.CLICK)
-    function onFindCoversButtonPressed(_):Void
-        Lib.getURL(new URLRequest("https://www.thecoverproject.net/"), "_blank");
-
     @:bind(outputCoverType, UIEvent.CHANGE)
     function outputCoverTypeChanged(_):Void
     {
@@ -153,7 +189,7 @@ class MainView extends UIState
         // This will work even though it's stupid
         outputCoverType.dropdownWidth = outputCoverType.dropdownWidth == 100 ? 105 : 100;
 
-        checkBoxArtSize();
+        checkBoxartSize();
     }
 
     @:bind(exportButton, MouseEvent.CLICK)
@@ -166,7 +202,7 @@ class MainView extends UIState
         if(realPageSize.width < 1 || realPageSize.height < 1)
             return UserLog.addError("The selected page size has no internal data");
 
-        final dpi = Std.parseInt(outputDpi.text);
+        final dpi = Std.parseInt(outputDpi.value);
         final digitalPageWidth = Math.ceil(dpi * realPageSize.width);
         final digitalPageHeight = Math.ceil(dpi * realPageSize.height);
 
