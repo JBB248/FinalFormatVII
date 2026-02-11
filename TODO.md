@@ -1,8 +1,7 @@
 # Important
 
 ## Bugs
-- Sometimes JPGs are stored sideways, and Openfl doesn't realize this and loads them sideways
+- None, woohoo
 
 ## Improve
-- Add more box art types
-- Add support for bmp (maybe)
+- Output pdf instead of png

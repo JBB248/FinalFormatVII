@@ -4,9 +4,7 @@ To use FFVII, you enter an image of a box art you would like to have printed,
 and FFVII will automatically size your image to the specific page size for the case of that box. 
 Thanks to FFVII, you can perfectly size the box art for the games in your collection every time.
 
-<h2>Contributers</h2>
-Joe Bray,
-IAustonFox
+See the <a href="https://github.com/JBB248/FinalFormatVII/blob/main/GUIDE.txt">guide</a> for use instructions.
 
 <h2>Build Instructions</h2>
 <ol>
